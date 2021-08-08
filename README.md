@@ -1,2 +1,10 @@
 # ossicones
-block chain &amp; ossicones coin for study
+OSSICONES COIN
+
+Dev Plan=
+
+- Blockchain Features
+- Dependency Injection
+- Clean Code
+
+
