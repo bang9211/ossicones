@@ -11,55 +11,63 @@ import (
 var obc *ossiconesBlockchain
 var once sync.Once
 
-type block struct {
+type OssiconessBlock struct {
 	data     string
 	hash     string
 	prevHash string
 }
 
-func (b *block) calculateHash() {
+func (b *OssiconessBlock) CalculateHash() {
 	hash := sha256.Sum256([]byte(b.data + b.prevHash))
 	b.hash = fmt.Sprintf("%x", hash)
 }
 
 type ossiconesBlockchain struct {
-	blocks []*block
+	blocks []*OssiconessBlock
 }
 
 func ObtainBlockchain() blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
 			obc = &ossiconesBlockchain{}
-			obc.AddBlock("Genesis Block")
+			obc.AddBlock("Genesis OssiconessBlock")
 		})
 	}
 	return obc
 }
 
-func (bc *ossiconesBlockchain) createBlock(data string) *block {
-	newBlock := block{
+func (obc *ossiconesBlockchain) createBlock(data string) *OssiconessBlock {
+	newBlock := OssiconessBlock{
 		data:     data,
-		prevHash: bc.getLastBlockHash(),
+		prevHash: obc.getLastBlockHash(),
 	}
-	newBlock.calculateHash()
+	newBlock.CalculateHash()
 	return &newBlock
 }
 
-func (bc *ossiconesBlockchain) getLastBlockHash() string {
-	if len(bc.blocks) > 0 {
-		return bc.blocks[len(bc.blocks)-1].hash
+func (obc *ossiconesBlockchain) getLastBlockHash() string {
+	if len(obc.blocks) > 0 {
+		return obc.blocks[len(obc.blocks)-1].hash
 	}
 	return ""
 }
 
-func (bc *ossiconesBlockchain) AddBlock(data string) {
-	newBlock := bc.createBlock(data)
-	newBlock.calculateHash()
-	bc.blocks = append(bc.blocks, newBlock)
+func (obc *ossiconesBlockchain) AddBlock(data string) {
+	newBlock := obc.createBlock(data)
+	newBlock.CalculateHash()
+	obc.blocks = append(obc.blocks, newBlock)
 }
 
-func (bc *ossiconesBlockchain) PrintBlock() {
-	for i, block := range bc.blocks {
-		fmt.Println(i, ":", *block)
+func (obc *ossiconesBlockchain) AllBlocks() []interface{} {
+	blocks := make([]interface{}, len(obc.blocks))
+	for i, block := range obc.blocks {
+		blocks[i] = block
+	}
+	return blocks
+}
+
+func (obc *ossiconesBlockchain) PrintBlock() {
+	for i, OssiconessBlock := range obc.blocks {
+		fmt.Println(i, ":", *OssiconessBlock)
 	}
 }
