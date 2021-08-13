@@ -13,6 +13,7 @@ import (
 
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/modules"
 )
 
 const port string = ":4000"
@@ -51,7 +52,10 @@ func main() {
 		os.Setenv("OSSICONES_SRC_HOME", homePath)
 	}
 
-	bc := ossiconesblockchain.ObtainBlockchain()
+	bc, err := modules.InitBlockchain()
+	if err != nil {
+		log.Fatal(err)
+	}
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")

@@ -13,7 +13,7 @@ import (
 
 // Injectors from wire.go:
 
-func initBlockchain() (blockchain.Blockchain, error) {
+func InitBlockchain() (blockchain.Blockchain, error) {
 	blockchainBlockchain := _wireBlockchainValue
 	return blockchainBlockchain, nil
 }
@@ -24,4 +24,7 @@ var (
 
 // wire.go:
 
-var MySet = wire.NewSet(wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.ObtainBlockchain()))
+var MySet = wire.NewSet(wire.InterfaceValue(
+	new(blockchain.Blockchain), ossiconesblockchain.ObtainBlockchain(),
+),
+)

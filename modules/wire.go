@@ -12,12 +12,12 @@ var MySet = wire.NewSet(
 	wire.InterfaceValue(
 		new(blockchain.Blockchain),
 		ossiconesblockchain.ObtainBlockchain(),
-	)
+	),
 )
 
 // var MySet = wire.NewSet(wire.InterfaceValue(new(io.Reader), os.Stdin))
 
-func initBlockchain() (blockchain.Blockchain, error) {
+func InitBlockchain() (blockchain.Blockchain, error) {
 	wire.Build(MySet)
 	return nil, nil
 }
