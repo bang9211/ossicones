@@ -12,14 +12,14 @@ var obc *ossiconesBlockchain
 var once sync.Once
 
 type OssiconessBlock struct {
-	data     string
-	hash     string
-	prevHash string
+	Data     string
+	Hash     string
+	PrevHash string
 }
 
 func (b *OssiconessBlock) CalculateHash() {
-	hash := sha256.Sum256([]byte(b.data + b.prevHash))
-	b.hash = fmt.Sprintf("%x", hash)
+	Hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
+	b.Hash = fmt.Sprintf("%x", Hash)
 }
 
 type ossiconesBlockchain struct {
@@ -36,10 +36,10 @@ func ObtainBlockchain() blockchain.Blockchain {
 	return obc
 }
 
-func (obc *ossiconesBlockchain) createBlock(data string) *OssiconessBlock {
+func (obc *ossiconesBlockchain) createBlock(Data string) *OssiconessBlock {
 	newBlock := OssiconessBlock{
-		data:     data,
-		prevHash: obc.getLastBlockHash(),
+		Data:     Data,
+		PrevHash: obc.getLastBlockHash(),
 	}
 	newBlock.CalculateHash()
 	return &newBlock
@@ -47,13 +47,13 @@ func (obc *ossiconesBlockchain) createBlock(data string) *OssiconessBlock {
 
 func (obc *ossiconesBlockchain) getLastBlockHash() string {
 	if len(obc.blocks) > 0 {
-		return obc.blocks[len(obc.blocks)-1].hash
+		return obc.blocks[len(obc.blocks)-1].Hash
 	}
 	return ""
 }
 
-func (obc *ossiconesBlockchain) AddBlock(data string) {
-	newBlock := obc.createBlock(data)
+func (obc *ossiconesBlockchain) AddBlock(Data string) {
+	newBlock := obc.createBlock(Data)
 	newBlock.CalculateHash()
 	obc.blocks = append(obc.blocks, newBlock)
 }

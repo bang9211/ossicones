@@ -15,7 +15,12 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 )
 
-const port string = ":4000"
+const (
+	port        string = ":4000"
+	templateDir string = "/templates/"
+)
+
+var templates *template.Template
 
 var homePath string
 
@@ -25,20 +30,21 @@ type homeData struct {
 }
 
 func home(rw http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles(fmt.Sprintf("%stemplates/home.gohtml", homePath+"/")))
-
-	obc := ossiconesblockchain.ObtainBlockchain()
-	tempBlocks := obc.AllBlocks()
+	tempBlocks := ossiconesblockchain.ObtainBlockchain().AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
 		blocks = append(blocks, block.(blockchain.Block))
 	}
 	data := homeData{"Home", blocks}
-	tmpl.Execute(rw, data)
+
+	templates.ExecuteTemplate(rw, "home", data)
+}
+
+func add(rw http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(rw, "add", nil)
 }
 
 func main() {
-
 	homePath = os.Getenv("OSSICONES_SRC_HOME")
 	if homePath == "" {
 		cmdOut, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
@@ -51,6 +57,9 @@ func main() {
 		os.Setenv("OSSICONES_SRC_HOME", homePath)
 	}
 
+	templates = template.Must(template.ParseGlob(homePath + templateDir + "pages/*.gohtml"))
+	templates = template.Must(templates.ParseGlob(homePath + templateDir + "partials/*.gohtml"))
+
 	bc := ossiconesblockchain.ObtainBlockchain()
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
@@ -58,8 +67,9 @@ func main() {
 	bc.PrintBlock()
 
 	http.HandleFunc("/", home)
-	dir, _ := os.Getwd()
+	http.HandleFunc("/add", add)
 
+	dir, _ := os.Getwd()
 	fmt.Printf("Listening on http://localhost%s in %s\n", port, dir)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

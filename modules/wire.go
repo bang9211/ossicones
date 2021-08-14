@@ -12,7 +12,7 @@ var MySet = wire.NewSet(
 	wire.InterfaceValue(
 		new(blockchain.Blockchain),
 		ossiconesblockchain.ObtainBlockchain(),
-	)
+	),
 )
 
 // var MySet = wire.NewSet(wire.InterfaceValue(new(io.Reader), os.Stdin))
