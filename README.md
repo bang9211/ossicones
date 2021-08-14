@@ -4,7 +4,9 @@ OSSICONES COIN
 Dev Plan=
 
 - Blockchain Features
-- Dependency Injection
+- Wire(Dependency Injection)
+- Docker
+- Kubernetes
 - Clean Code
 
 
