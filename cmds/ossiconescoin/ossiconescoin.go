@@ -13,6 +13,7 @@ import (
 
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/modules"
 )
 
 const (
@@ -60,7 +61,11 @@ func main() {
 	templates = template.Must(template.ParseGlob(homePath + templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(homePath + templateDir + "partials/*.gohtml"))
 
-	bc := ossiconesblockchain.ObtainBlockchain()
+	// bc := ossiconesblockchain.ObtainBlockchain()
+	bc, err := modules.InitBlockchain()
+	if err != nil {
+		log.Fatal(err)
+	}
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")

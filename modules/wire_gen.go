@@ -13,7 +13,7 @@ import (
 
 // Injectors from wire.go:
 
-func initBlockchain() (blockchain.Blockchain, error) {
+func InitBlockchain() (blockchain.Blockchain, error) {
 	blockchainBlockchain := _wireBlockchainValue
 	return blockchainBlockchain, nil
 }
