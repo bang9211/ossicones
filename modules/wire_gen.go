@@ -6,9 +6,13 @@
 package modules
 
 import (
+	"fmt"
+	"github.com/bang9211/ossicones/implements/defaulthttpserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/httpserver"
 	"github.com/google/wire"
+	"log"
 )
 
 // Injectors from wire.go:
@@ -22,9 +26,39 @@ var (
 	_wireBlockchainValue = ossiconesblockchain.ObtainBlockchain()
 )
 
+func InitHTTPServer(homePath string, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
+	httpServer := defaulthttpserver.ObtainTemplateRouting(homePath, blockchain2)
+	return httpServer, nil
+}
+
 // wire.go:
 
 var MySet = wire.NewSet(wire.InterfaceValue(
 	new(blockchain.Blockchain), ossiconesblockchain.ObtainBlockchain(),
 ),
 )
+
+func Init(homePath string) {
+	fmt.Printf("Init Modules")
+
+	bc, err := InitBlockchain()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hs, err := InitHTTPServer(homePath, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	bc.AddBlock("First Block")
+	bc.AddBlock("Second Block")
+	bc.AddBlock("Thrid Block")
+	bc.PrintBlock()
+
+	hs.Serve()
+}
+
+func Close() {
+	fmt.Printf("Closed Modules")
+}
