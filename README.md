@@ -5,6 +5,7 @@ Dev Plan=
 
 - Blockchain Features
 - Wire(Dependency Injection)
+- Log
 - Configuration
 - Docker
 - Kubernetes
