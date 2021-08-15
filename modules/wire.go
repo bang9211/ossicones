@@ -16,22 +16,23 @@ import (
 var MySet = wire.NewSet(
 	wire.InterfaceValue(
 		new(blockchain.Blockchain),
-		ossiconesblockchain.ObtainBlockchain(),
+		ossiconesblockchain.GetOrCreate(),
 	),
 )
 
-// var MySet = wire.NewSet(wire.InterfaceValue(new(io.Reader), os.Stdin))
-
+// InitBlockchains injects dependencies and inits of Blockchain.
 func InitBlockchain() (blockchain.Blockchain, error) {
 	wire.Build(MySet)
 	return nil, nil
 }
 
+// InitHTTPServer injects dependencies and inits of HTTPServer.
 func InitHTTPServer(homePath string, blockchain blockchain.Blockchain) (httpserver.HTTPServer, error) {
-	wire.Build(defaulthttpserver.ObtainTemplateRouting)
+	wire.Build(defaulthttpserver.GetOrCreate)
 	return nil, nil
 }
 
+// Init injects dependencies and inits of all modules.
 func Init(homePath string) {
 	fmt.Printf("Init Modules")
 
@@ -53,6 +54,8 @@ func Init(homePath string) {
 	hs.Serve()
 }
 
+// Close closes all modules gracefully.
 func Close() {
+	//todo
 	fmt.Printf("Closed Modules")
 }

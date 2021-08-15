@@ -11,33 +11,36 @@ import (
 var obc *ossiconesBlockchain
 var once sync.Once
 
-type OssiconessBlock struct {
+// OssiconesBlock for OssiconesBlockChain.
+type OssiconesBlock struct {
 	Data     string
 	Hash     string
 	PrevHash string
 }
 
-func (b *OssiconessBlock) CalculateHash() {
+func (b *OssiconesBlock) CalculateHash() {
 	Hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
 	b.Hash = fmt.Sprintf("%x", Hash)
 }
 
 type ossiconesBlockchain struct {
-	blocks []*OssiconessBlock
+	blocks []*OssiconesBlock
 }
 
-func ObtainBlockchain() blockchain.Blockchain {
+// GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
+// Otherwise. it creates and returns the object.
+func GetOrCreate() blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
 			obc = &ossiconesBlockchain{}
-			obc.AddBlock("Genesis OssiconessBlock")
+			obc.AddBlock("Genesis OssiconesBlock")
 		})
 	}
 	return obc
 }
 
-func (obc *ossiconesBlockchain) createBlock(Data string) *OssiconessBlock {
-	newBlock := OssiconessBlock{
+func (obc *ossiconesBlockchain) createBlock(Data string) *OssiconesBlock {
+	newBlock := OssiconesBlock{
 		Data:     Data,
 		PrevHash: obc.getLastBlockHash(),
 	}
@@ -67,7 +70,7 @@ func (obc *ossiconesBlockchain) AllBlocks() []interface{} {
 }
 
 func (obc *ossiconesBlockchain) PrintBlock() {
-	for i, OssiconessBlock := range obc.blocks {
-		fmt.Println(i, ":", *OssiconessBlock)
+	for i, OssiconesBlock := range obc.blocks {
+		fmt.Println(i, ":", *OssiconesBlock)
 	}
 }

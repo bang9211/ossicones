@@ -3,10 +3,10 @@
     <section>
         <div>
             <ul>
-                <li>{{.Data}} </li>
-                <li>{{.Hash}} </li>
+                <li><strong>Data: </strong>{{.Data}} </li>
+                <li><strong>Hash: </strong>{{.Hash}} </li>
                 {{if .PrevHash}}
-                    <li>{{.PrevHash}} </li>
+                    <li><strong>Previous Hash: </strong>{{.PrevHash}} </li>
                 {{end}}
             </ul>
         </div>

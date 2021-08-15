@@ -23,18 +23,18 @@ func InitBlockchain() (blockchain.Blockchain, error) {
 }
 
 var (
-	_wireBlockchainValue = ossiconesblockchain.ObtainBlockchain()
+	_wireBlockchainValue = ossiconesblockchain.GetOrCreate()
 )
 
 func InitHTTPServer(homePath string, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
-	httpServer := defaulthttpserver.ObtainTemplateRouting(homePath, blockchain2)
+	httpServer := defaulthttpserver.GetOrCreate(homePath, blockchain2)
 	return httpServer, nil
 }
 
 // wire.go:
 
 var MySet = wire.NewSet(wire.InterfaceValue(
-	new(blockchain.Blockchain), ossiconesblockchain.ObtainBlockchain(),
+	new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate(),
 ),
 )
 

@@ -28,7 +28,11 @@ type defaultHTTPServer struct {
 	address    string
 }
 
-func ObtainTemplateRouting(homePath string, blocchain blockchain.Blockchain) httpserver.HTTPServer {
+// GetOrCreate returns the existing singletone object of DefaultHTTPServer.
+// Otherwise. it creates and returns the object.
+func GetOrCreate(
+	homePath string,
+	blocchain blockchain.Blockchain) httpserver.HTTPServer {
 	if dhs == nil {
 		once.Do(func() {
 			dhs = &defaultHTTPServer{
@@ -55,7 +59,7 @@ func (dhs *defaultHTTPServer) init() {
 }
 
 func (dhs *defaultHTTPServer) home(rw http.ResponseWriter, r *http.Request) {
-	tempBlocks := ossiconesblockchain.ObtainBlockchain().AllBlocks()
+	tempBlocks := ossiconesblockchain.GetOrCreate().AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
 		blocks = append(blocks, block.(blockchain.Block))
