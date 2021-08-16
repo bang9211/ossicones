@@ -1,11 +1,12 @@
 # ossicones
-OSSICONES COIN
+OSSICONES
 
-![Eat-Funny-Giraffe-Fun-Isolated-Mammal-Head-Chew-3064412](https://user-images.githubusercontent.com/24886864/129545729-24f6049b-cae8-44f8-9caa-54c968bf0695.png)
+![Ossicones](https://user-images.githubusercontent.com/24886864/129552153-f14d0d39-09c1-4252-a86b-c3716ef01071.png)
+
 
 Dev Plan=
 
-- Blockchain Features
+- Blockchain & Coin Features
 - Wire(Dependency Injection)
 - Log
 - Configuration
