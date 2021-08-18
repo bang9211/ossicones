@@ -12,10 +12,13 @@ import (
 )
 
 func main() {
-	//TODO
-	// if utils.IsRunning() {
-	// 	log.Fatal("The process is already running")
-	// }
+	isRunning, err := utils.IsRunning()
+	if err != nil {
+		fmt.Printf("Failed to check the process is already running")
+		log.Fatal(err)
+	} else if isRunning {
+		log.Fatal("The process is already running")
+	}
 
 	homePath, err := utils.GetOrSetHomePath()
 	if err != nil {
@@ -24,7 +27,7 @@ func main() {
 	}
 
 	// Dependency Injection using Wire
-	modules.Init(homePath)
+	modules.InitModules(homePath)
 	defer modules.Close()
 
 	quit := make(chan os.Signal, 1)
