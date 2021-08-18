@@ -103,3 +103,9 @@ func findSameProcess(path string, info os.FileInfo, err error) error {
 
 	return nil
 }
+
+func HandleError(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
+}

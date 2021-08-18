@@ -7,8 +7,10 @@ package modules
 
 import (
 	"fmt"
+	"github.com/bang9211/ossicones/implements/defaultapiserver"
 	"github.com/bang9211/ossicones/implements/defaulthttpserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
+	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/httpserver"
 	"github.com/google/wire"
@@ -17,6 +19,7 @@ import (
 
 // Injectors from wire.go:
 
+// InitBlockchains injects dependencies and inits of Blockchain.
 func InitBlockchain() (blockchain.Blockchain, error) {
 	blockchainBlockchain := _wireBlockchainValue
 	return blockchainBlockchain, nil
@@ -26,9 +29,16 @@ var (
 	_wireBlockchainValue = ossiconesblockchain.GetOrCreate()
 )
 
+// InitHTTPServer injects dependencies and inits of HTTPServer.
 func InitHTTPServer(homePath string, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
 	httpServer := defaulthttpserver.GetOrCreate(homePath, blockchain2)
 	return httpServer, nil
+}
+
+// InitAPIServer injects dependencies and inits of APiServer.
+func InitAPIServer(homePath string, blockchain2 blockchain.Blockchain) (apiserver.APIServer, error) {
+	apiServer := defaultapiserver.GetOrCreate(homePath, blockchain2)
+	return apiServer, nil
 }
 
 // wire.go:
@@ -38,6 +48,7 @@ var MySet = wire.NewSet(wire.InterfaceValue(
 ),
 )
 
+// Init injects dependencies and inits of all modules.
 func Init(homePath string) {
 	fmt.Printf("Init Modules")
 
@@ -51,14 +62,21 @@ func Init(homePath string) {
 		log.Fatal(err)
 	}
 
+	as, err := InitAPIServer(homePath, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	bc.PrintBlock()
 
 	hs.Serve()
+	as.Serve()
 }
 
+// Close closes all modules gracefully.
 func Close() {
 	fmt.Printf("Closed Modules")
 }

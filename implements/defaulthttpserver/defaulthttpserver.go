@@ -83,7 +83,7 @@ func (dhs *defaultHTTPServer) add(rw http.ResponseWriter, r *http.Request) {
 
 func (dhs *defaultHTTPServer) Serve() {
 	go func() {
-		fmt.Printf("Listening on %s\n", dhs.address)
+		fmt.Printf("Listening HTTP Server on %s\n", dhs.address)
 		log.Fatal(http.ListenAndServe(dhs.address, nil))
 	}()
 }

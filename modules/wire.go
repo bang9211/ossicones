@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/bang9211/ossicones/implements/defaultapiserver"
 	"github.com/bang9211/ossicones/implements/defaulthttpserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
+	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/httpserver"
 	"github.com/google/wire"
@@ -32,6 +34,12 @@ func InitHTTPServer(homePath string, blockchain blockchain.Blockchain) (httpserv
 	return nil, nil
 }
 
+// InitAPIServer injects dependencies and inits of APiServer.
+func InitAPIServer(homePath string, blockchain blockchain.Blockchain) (apiserver.APIServer, error) {
+	wire.Build(defaultapiserver.GetOrCreate)
+	return nil, nil
+}
+
 // Init injects dependencies and inits of all modules.
 func Init(homePath string) {
 	fmt.Printf("Init Modules")
@@ -46,12 +54,18 @@ func Init(homePath string) {
 		log.Fatal(err)
 	}
 
+	as, err := InitAPIServer(homePath, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	bc.PrintBlock()
 
 	hs.Serve()
+	as.Serve()
 }
 
 // Close closes all modules gracefully.

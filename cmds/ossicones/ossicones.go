@@ -12,9 +12,9 @@ import (
 )
 
 func main() {
-	if utils.IsRunning() {
-		log.Fatal("The process is already running")
-	}
+	// if utils.IsRunning() {
+	// 	log.Fatal("The process is already running")
+	// }
 
 	homePath, err := utils.GetOrSetHomePath()
 	if err != nil {
