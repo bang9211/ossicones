@@ -10,6 +10,7 @@ import (
 
 	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/utils"
 )
 
 var das *defaultAPIServer
@@ -38,6 +39,10 @@ type URLDescription struct {
 
 func (u URLDescription) String() string {
 	return ""
+}
+
+type AddBlockBody struct {
+	Message string
 }
 
 type defaultAPIServer struct {
@@ -72,7 +77,7 @@ func (dhs *defaultAPIServer) init() {
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	dhs.serveMux.HandleFunc("/", dhs.documentation)
-	dhs.serveMux.HandleFunc("/add", dhs.blocks)
+	dhs.serveMux.HandleFunc("/blocks", dhs.blocks)
 }
 
 func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
@@ -88,6 +93,11 @@ func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Reque
 			Description: "Add A Block",
 			Payload:     "data:string",
 		},
+		{
+			URL:         defaultURL{das.address, "/blocks/{id}"},
+			Method:      "GET",
+			Description: "See A Block",
+		},
 	}
 	rw.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(rw).Encode(data)
@@ -96,7 +106,13 @@ func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Reque
 func (das *defaultAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
+		rw.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(rw).Encode(das.blockchain.AllBlocks())
+	case "POST":
+		var addBlockBody AddBlockBody
+		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		das.blockchain.AddBlock(addBlockBody.Message)
+		rw.WriteHeader(http.StatusCreated)
 	}
 }
 

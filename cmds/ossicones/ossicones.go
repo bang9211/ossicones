@@ -19,7 +19,7 @@ func main() {
 
 	homePath, err := utils.GetOrSetHomePath()
 	if err != nil {
-		fmt.Printf("Failed to obtainHomePath")
+		fmt.Printf("Failed to GetOrSetHomePath")
 		log.Fatal(err)
 	}
 
