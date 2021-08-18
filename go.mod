@@ -6,4 +6,5 @@ require (
 	github.com/go-delve/delve v1.7.0 // indirect
 	github.com/google/wire v0.5.0 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
+	github.com/spf13/viper v1.8.1 // indirect
 )
