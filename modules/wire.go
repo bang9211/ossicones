@@ -15,16 +15,14 @@ import (
 	"github.com/google/wire"
 )
 
-var MySet = wire.NewSet(
-	wire.InterfaceValue(
-		new(blockchain.Blockchain),
-		ossiconesblockchain.GetOrCreate(),
-	),
+// TODO : Default set of ossicones
+var DefaultSet = wire.NewSet(
+	wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate()),
 )
 
 // InitBlockchains injects dependencies and inits of Blockchain.
 func InitBlockchain() (blockchain.Blockchain, error) {
-	wire.Build(MySet)
+	wire.Build(ossiconesblockchain.GetOrCreate)
 	return nil, nil
 }
 
@@ -41,8 +39,8 @@ func InitAPIServer(homePath string, blockchain blockchain.Blockchain) (apiserver
 }
 
 // Init injects dependencies and inits of all modules.
-func Init(homePath string) {
-	fmt.Printf("Init Modules")
+func InitModules(homePath string) {
+	fmt.Println("Init Modules")
 
 	bc, err := InitBlockchain()
 	if err != nil {

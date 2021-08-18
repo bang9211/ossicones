@@ -52,7 +52,7 @@ type defaultAPIServer struct {
 	address    string
 }
 
-// GetOrCreate returns the existing singletone object of DefaultHTTPServer.
+// GetOrCreate returns the existing singletone object of DefaultAPIServer.
 // Otherwise. it creates and returns the object.
 func GetOrCreate(
 	homePath string,

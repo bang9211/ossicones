@@ -21,13 +21,9 @@ import (
 
 // InitBlockchains injects dependencies and inits of Blockchain.
 func InitBlockchain() (blockchain.Blockchain, error) {
-	blockchainBlockchain := _wireBlockchainValue
+	blockchainBlockchain := ossiconesblockchain.GetOrCreate()
 	return blockchainBlockchain, nil
 }
-
-var (
-	_wireBlockchainValue = ossiconesblockchain.GetOrCreate()
-)
 
 // InitHTTPServer injects dependencies and inits of HTTPServer.
 func InitHTTPServer(homePath string, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
@@ -43,14 +39,12 @@ func InitAPIServer(homePath string, blockchain2 blockchain.Blockchain) (apiserve
 
 // wire.go:
 
-var MySet = wire.NewSet(wire.InterfaceValue(
-	new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate(),
-),
-)
+// TODO : Default set of ossicones
+var DefaultSet = wire.NewSet(wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate()))
 
 // Init injects dependencies and inits of all modules.
-func Init(homePath string) {
-	fmt.Printf("Init Modules")
+func InitModules(homePath string) {
+	fmt.Println("Init Modules")
 
 	bc, err := InitBlockchain()
 	if err != nil {
