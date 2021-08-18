@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	//TODO
 	// if utils.IsRunning() {
 	// 	log.Fatal("The process is already running")
 	// }

@@ -41,6 +41,7 @@ func (u URLDescription) String() string {
 }
 
 type defaultAPIServer struct {
+	serveMux   *http.ServeMux
 	blockchain blockchain.Blockchain
 	homePath   string
 	address    string
@@ -54,6 +55,7 @@ func GetOrCreate(
 	if das == nil {
 		once.Do(func() {
 			das = &defaultAPIServer{
+				serveMux:   http.NewServeMux(),
 				homePath:   homePath,
 				blockchain: blocchain,
 			}
@@ -69,8 +71,8 @@ func (dhs *defaultAPIServer) init() {
 	port := 4001
 	dhs.address = host + ":" + strconv.Itoa(port)
 
-	// http.HandleFunc("/", dhs.documentation)
-	// http.HandleFunc("/add", dhs.blocks)
+	dhs.serveMux.HandleFunc("/", dhs.documentation)
+	dhs.serveMux.HandleFunc("/add", dhs.blocks)
 }
 
 func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
@@ -81,7 +83,7 @@ func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Reque
 			Description: "See Documentation",
 		},
 		{
-			URL:         defaultURL{das.address, "blocks"},
+			URL:         defaultURL{das.address, "/blocks"},
 			Method:      "POST",
 			Description: "Add A Block",
 			Payload:     "data:string",
@@ -101,7 +103,7 @@ func (das *defaultAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 func (das *defaultAPIServer) Serve() {
 	go func() {
 		fmt.Printf("Listening API Server on %s\n", das.address)
-		log.Fatal(http.ListenAndServe(das.address, nil))
+		log.Fatal(http.ListenAndServe(das.address, das.serveMux))
 	}()
 }
 

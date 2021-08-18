@@ -23,6 +23,7 @@ type homeData struct {
 }
 
 type defaultHTTPServer struct {
+	serveMux   *http.ServeMux
 	blockchain blockchain.Blockchain
 	homePath   string
 	address    string
@@ -36,6 +37,7 @@ func GetOrCreate(
 	if dhs == nil {
 		once.Do(func() {
 			dhs = &defaultHTTPServer{
+				serveMux:   http.NewServeMux(),
 				homePath:   homePath,
 				blockchain: blocchain,
 			}
@@ -54,8 +56,8 @@ func (dhs *defaultHTTPServer) init() {
 	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(dhs.homePath + "/templates/partials/*.gohtml"))
 
-	http.HandleFunc("/", dhs.home)
-	http.HandleFunc("/add", dhs.add)
+	dhs.serveMux.HandleFunc("/", dhs.home)
+	dhs.serveMux.HandleFunc("/add", dhs.add)
 }
 
 func (dhs *defaultHTTPServer) home(rw http.ResponseWriter, r *http.Request) {
@@ -84,7 +86,7 @@ func (dhs *defaultHTTPServer) add(rw http.ResponseWriter, r *http.Request) {
 func (dhs *defaultHTTPServer) Serve() {
 	go func() {
 		fmt.Printf("Listening HTTP Server on %s\n", dhs.address)
-		log.Fatal(http.ListenAndServe(dhs.address, nil))
+		log.Fatal(http.ListenAndServe(dhs.address, dhs.serveMux))
 	}()
 }
 
