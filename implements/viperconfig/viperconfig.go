@@ -41,6 +41,9 @@ func (vc *ViperConfig) setFlags() {
 	vc.viper.BindPFlags(pflag.CommandLine)
 }
 
+// Load loads config file from path, if the same key exists in environment variables
+// Viper overwrites value of same key to environment variables. 
+// all the keys store to lowercase.
 func (vc *ViperConfig) Load() error {
 	if !strings.Contains(vc.Path, "/") {
 		vc.viper.AddConfigPath(".")
@@ -52,10 +55,8 @@ func (vc *ViperConfig) Load() error {
 
 	if err := vc.viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found; ignore error if desired
 			log.Printf("Failed to find config file default values will be used : %s", err)
 		} else {
-			// Config file was found but another error was produced
 			log.Fatal(err)
 		}
 	}
