@@ -59,6 +59,10 @@ func HandleError(err error) {
 	}
 }
 
+func GetFileDir(path string) string {
+	return filepath.Dir(path)
+}
+
 func GetFileNameFromPath(path string) string {
 	return filepath.Base(path)
 }
@@ -69,7 +73,7 @@ func GetFileNameWithoutExtension(path string) string {
 	return splited[0]
 }
 
-func GetOnlyFileNameExtension(path string) string {
+func GetFileExtension(path string) string {
 	file := filepath.Base(path)
 	splited := strings.Split(file, ".")
 	return splited[1]

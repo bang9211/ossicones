@@ -1,4 +1,4 @@
-//+build wireinject
+//go:build wireinject
 
 package modules
 
@@ -9,8 +9,10 @@ import (
 	"github.com/bang9211/ossicones/implements/defaultapiserver"
 	"github.com/bang9211/ossicones/implements/defaulthttpserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
+	"github.com/bang9211/ossicones/implements/viperconfig"
 	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/httpserver"
 	"github.com/google/wire"
 )
@@ -26,14 +28,20 @@ func InitBlockchain() (blockchain.Blockchain, error) {
 	return nil, nil
 }
 
+// InitConfig injects dependencies and inits of Config.
+func InitConfig() (config.Config, error) {
+	wire.Build(viperconfig.NewViperConfig)
+	return nil, nil
+}
+
 // InitHTTPServer injects dependencies and inits of HTTPServer.
-func InitHTTPServer(homePath string, blockchain blockchain.Blockchain) (httpserver.HTTPServer, error) {
+func InitHTTPServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (httpserver.HTTPServer, error) {
 	wire.Build(defaulthttpserver.GetOrCreate)
 	return nil, nil
 }
 
 // InitAPIServer injects dependencies and inits of APiServer.
-func InitAPIServer(homePath string, blockchain blockchain.Blockchain) (apiserver.APIServer, error) {
+func InitAPIServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (apiserver.APIServer, error) {
 	wire.Build(defaultapiserver.GetOrCreate)
 	return nil, nil
 }
@@ -46,24 +54,29 @@ func InitModules(homePath string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	hs, err := InitHTTPServer(homePath, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	as, err := InitAPIServer(homePath, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	bc.PrintBlock()
 
+	config, err := InitConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	config.Load()
+
+	hs, err := InitHTTPServer(homePath, config, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
 	hs.Serve()
+
+	as, err := InitAPIServer(homePath, config, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
 	as.Serve()
+
 }
 
 // Close closes all modules gracefully.

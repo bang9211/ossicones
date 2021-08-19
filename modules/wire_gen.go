@@ -10,8 +10,10 @@ import (
 	"github.com/bang9211/ossicones/implements/defaultapiserver"
 	"github.com/bang9211/ossicones/implements/defaulthttpserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
+	"github.com/bang9211/ossicones/implements/viperconfig"
 	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/httpserver"
 	"github.com/google/wire"
 	"log"
@@ -25,15 +27,21 @@ func InitBlockchain() (blockchain.Blockchain, error) {
 	return blockchainBlockchain, nil
 }
 
+// InitConfig injects dependencies and inits of Config.
+func InitConfig() (config.Config, error) {
+	configConfig := viperconfig.NewViperConfig()
+	return configConfig, nil
+}
+
 // InitHTTPServer injects dependencies and inits of HTTPServer.
-func InitHTTPServer(homePath string, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
-	httpServer := defaulthttpserver.GetOrCreate(homePath, blockchain2)
+func InitHTTPServer(homePath string, config2 config.Config, blockchain2 blockchain.Blockchain) (httpserver.HTTPServer, error) {
+	httpServer := defaulthttpserver.GetOrCreate(config2, homePath, blockchain2)
 	return httpServer, nil
 }
 
 // InitAPIServer injects dependencies and inits of APiServer.
-func InitAPIServer(homePath string, blockchain2 blockchain.Blockchain) (apiserver.APIServer, error) {
-	apiServer := defaultapiserver.GetOrCreate(homePath, blockchain2)
+func InitAPIServer(homePath string, config2 config.Config, blockchain2 blockchain.Blockchain) (apiserver.APIServer, error) {
+	apiServer := defaultapiserver.GetOrCreate(config2, homePath, blockchain2)
 	return apiServer, nil
 }
 
@@ -50,24 +58,29 @@ func InitModules(homePath string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	hs, err := InitHTTPServer(homePath, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	as, err := InitAPIServer(homePath, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	bc.PrintBlock()
+	config2, err := InitConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	config2.
+		Load()
 
+	hs, err := InitHTTPServer(homePath, config2, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
 	hs.Serve()
+
+	as, err := InitAPIServer(homePath, config2, bc)
+	if err != nil {
+		log.Fatal(err)
+	}
 	as.Serve()
+
 }
 
 // Close closes all modules gracefully.

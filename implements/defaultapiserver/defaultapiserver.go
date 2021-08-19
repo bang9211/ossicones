@@ -10,6 +10,7 @@ import (
 
 	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/utils"
 )
 
@@ -46,6 +47,7 @@ type AddBlockBody struct {
 }
 
 type defaultAPIServer struct {
+	config     config.Config
 	serveMux   *http.ServeMux
 	blockchain blockchain.Blockchain
 	homePath   string
@@ -55,11 +57,13 @@ type defaultAPIServer struct {
 // GetOrCreate returns the existing singletone object of DefaultAPIServer.
 // Otherwise. it creates and returns the object.
 func GetOrCreate(
+	config config.Config,
 	homePath string,
 	blocchain blockchain.Blockchain) apiserver.APIServer {
 	if das == nil {
 		once.Do(func() {
 			das = &defaultAPIServer{
+				config:     config,
 				serveMux:   http.NewServeMux(),
 				homePath:   homePath,
 				blockchain: blocchain,
@@ -72,8 +76,8 @@ func GetOrCreate(
 }
 
 func (dhs *defaultAPIServer) init() {
-	host := "0.0.0.0"
-	port := 4001
+	host := dhs.config.GetString("ossicones_api_server_host", "0.0.0.0")
+	port := dhs.config.GetInt("ossicones_api_server_port", 4001)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	dhs.serveMux.HandleFunc("/", dhs.documentation)

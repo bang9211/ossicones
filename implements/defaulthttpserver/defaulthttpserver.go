@@ -10,6 +10,7 @@ import (
 
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/httpserver"
 )
 
@@ -23,6 +24,7 @@ type homeData struct {
 }
 
 type defaultHTTPServer struct {
+	config     config.Config
 	serveMux   *http.ServeMux
 	blockchain blockchain.Blockchain
 	homePath   string
@@ -32,11 +34,13 @@ type defaultHTTPServer struct {
 // GetOrCreate returns the existing singletone object of DefaultHTTPServer.
 // Otherwise. it creates and returns the object.
 func GetOrCreate(
+	config config.Config,
 	homePath string,
 	blocchain blockchain.Blockchain) httpserver.HTTPServer {
 	if dhs == nil {
 		once.Do(func() {
 			dhs = &defaultHTTPServer{
+				config:     config,
 				serveMux:   http.NewServeMux(),
 				homePath:   homePath,
 				blockchain: blocchain,
@@ -49,8 +53,8 @@ func GetOrCreate(
 }
 
 func (dhs *defaultHTTPServer) init() {
-	host := "0.0.0.0"
-	port := 4000
+	host := dhs.config.GetString("ossicones_http_server_host", "0.0.0.0")
+	port := dhs.config.GetInt("ossicones_http_server_port", 4000)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
