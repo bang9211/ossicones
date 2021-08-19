@@ -16,9 +16,9 @@ go build
 Dev Plan=
 
 - Blockchain & Coin Features
-- Dependency Injection(Wire) : https://syntaxsugar.tistory.com/entry/Golang-Configuration
+- Dependency Injection(Wire) : https://syntaxsugar.tistory.com/entry/Golang-Dependency-Injection
 - Configuration(Viper) : https://syntaxsugar.tistory.com/entry/Golang-Configuration
-- Log(UNDEFINED)
+- Logging(UNDEFINED)
 - Database(UNDEFINED)
 - Containerize(Docker)
 - Orchestration(Kubernetes)
