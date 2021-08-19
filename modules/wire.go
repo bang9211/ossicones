@@ -57,7 +57,7 @@ func InitModules(homePath string) {
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
-	bc.PrintBlock()
+	// bc.PrintBlock()
 
 	config, err := InitConfig()
 	if err != nil {

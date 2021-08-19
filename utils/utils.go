@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -22,7 +21,6 @@ func GetOrSetHomePath() (string, error) {
 			return "", err
 		}
 		homePath = strings.TrimSpace(string(cmdOut))
-		fmt.Printf("HOME PATH : %s\n", homePath)
 		os.Setenv("OSSICONES_SRC_HOME", homePath)
 	}
 	return homePath, nil
