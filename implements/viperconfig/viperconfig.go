@@ -42,7 +42,7 @@ func (vc *ViperConfig) setFlags() {
 }
 
 // Load loads config file from path, if the same key exists in environment variables
-// Viper overwrites value of same key to environment variables. 
+// Viper overwrites value of same key to environment variables.
 // all the keys store to lowercase.
 func (vc *ViperConfig) Load() error {
 	if !strings.Contains(vc.Path, "/") {
