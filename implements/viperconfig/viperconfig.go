@@ -12,11 +12,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-const defaultConfigFile = "ossicones.conf"
+const (
+	defaultConfigFile = "ossicones.conf"
+	configFileType    = "env"
+)
 
 type ViperConfig struct {
 	viper *viper.Viper
-	Path  string
 }
 
 // NewViperConfig returns new ViperConfig.
@@ -29,7 +31,8 @@ func NewViperConfig() config.Config {
 func (vc *ViperConfig) init() {
 	vc.setFlags()
 	// only use 'config' flag for reading config file path
-	vc.Path = vc.GetString("config", defaultConfigFile)
+	configFilePath := vc.GetString("config", defaultConfigFile)
+	vc.preconfigForRead(configFilePath)
 }
 
 func (vc *ViperConfig) setFlags() {
@@ -41,18 +44,20 @@ func (vc *ViperConfig) setFlags() {
 	vc.viper.BindPFlags(pflag.CommandLine)
 }
 
+func (vc *ViperConfig) preconfigForRead(configFilePath string) {
+	if !strings.Contains(configFilePath, "/") {
+		vc.viper.AddConfigPath(".")
+	}
+	vc.viper.AddConfigPath(utils.GetFileDir(configFilePath))
+	vc.viper.SetConfigName(utils.GetFileNameFromPath(configFilePath))
+	vc.viper.SetConfigType(configFileType)
+	vc.viper.AutomaticEnv()
+}
+
 // Load loads config file from path, if the same key exists in environment variables
 // Viper overwrites value of same key to environment variables.
 // all the keys store to lowercase.
 func (vc *ViperConfig) Load() error {
-	if !strings.Contains(vc.Path, "/") {
-		vc.viper.AddConfigPath(".")
-	}
-	vc.viper.AddConfigPath(utils.GetFileDir(vc.Path))
-	vc.viper.SetConfigName(utils.GetFileNameFromPath(vc.Path))
-	vc.viper.SetConfigType("env")
-	vc.viper.AutomaticEnv()
-
 	if err := vc.viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Printf("Failed to find config file default values will be used : %s", err)

@@ -31,14 +31,14 @@ func (u *defaultURL) MarshalText() ([]byte, error) {
 	return []byte(url), nil
 }
 
-type URLDescription struct {
+type urlDescription struct {
 	URL         defaultURL `json:"url"`
 	Method      string     `json:"method"`
 	Description string     `json:"description"`
 	Payload     string     `json:"payload,omitempty"`
 }
 
-func (u URLDescription) String() string {
+func (u urlDescription) String() string {
 	return ""
 }
 
@@ -85,7 +85,7 @@ func (dhs *defaultAPIServer) init() {
 }
 
 func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
-	data := []URLDescription{
+	data := []urlDescription{
 		{
 			URL:         defaultURL{das.address, "/"},
 			Method:      "GET",
