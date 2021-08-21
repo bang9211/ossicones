@@ -1,4 +1,4 @@
-package defaultapiserver
+package defaultrestapiserver
 
 import (
 	"encoding/json"
@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
+	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/bang9211/ossicones/utils"
 )
 
@@ -59,7 +59,7 @@ type defaultAPIServer struct {
 func GetOrCreate(
 	config config.Config,
 	homePath string,
-	blocchain blockchain.Blockchain) apiserver.APIServer {
+	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
 	if das == nil {
 		once.Do(func() {
 			das = &defaultAPIServer{
@@ -76,8 +76,8 @@ func GetOrCreate(
 }
 
 func (dhs *defaultAPIServer) init() {
-	host := dhs.config.GetString("ossicones_api_server_host", "0.0.0.0")
-	port := dhs.config.GetInt("ossicones_api_server_port", 4001)
+	host := dhs.config.GetString("ossicones_rest_api_server_host", "0.0.0.0")
+	port := dhs.config.GetInt("ossicones_rest_api_server_port", 4001)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	dhs.serveMux.HandleFunc("/", dhs.documentation)
@@ -122,7 +122,7 @@ func (das *defaultAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 
 func (das *defaultAPIServer) Serve() {
 	go func() {
-		fmt.Printf("Listening API Server on %s\n", das.address)
+		fmt.Printf("Listening REST API Server on %s\n", das.address)
 		log.Fatal(http.ListenAndServe(das.address, das.serveMux))
 	}()
 }

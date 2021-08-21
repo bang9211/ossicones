@@ -1,4 +1,4 @@
-package defaulthttpserver
+package defaultexplorerserver
 
 import (
 	"fmt"
@@ -11,10 +11,10 @@ import (
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
-	"github.com/bang9211/ossicones/interfaces/httpserver"
+	"github.com/bang9211/ossicones/interfaces/explorerserver"
 )
 
-var dhs *defaultHTTPServer
+var dhs *defaultExplorerServer
 var once sync.Once
 var templates *template.Template
 
@@ -23,7 +23,7 @@ type homeData struct {
 	Blocks    []blockchain.Block
 }
 
-type defaultHTTPServer struct {
+type defaultExplorerServer struct {
 	config     config.Config
 	serveMux   *http.ServeMux
 	blockchain blockchain.Blockchain
@@ -36,10 +36,10 @@ type defaultHTTPServer struct {
 func GetOrCreate(
 	config config.Config,
 	homePath string,
-	blocchain blockchain.Blockchain) httpserver.HTTPServer {
+	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
 	if dhs == nil {
 		once.Do(func() {
-			dhs = &defaultHTTPServer{
+			dhs = &defaultExplorerServer{
 				config:     config,
 				serveMux:   http.NewServeMux(),
 				homePath:   homePath,
@@ -52,9 +52,9 @@ func GetOrCreate(
 	return dhs
 }
 
-func (dhs *defaultHTTPServer) init() {
-	host := dhs.config.GetString("ossicones_http_server_host", "0.0.0.0")
-	port := dhs.config.GetInt("ossicones_http_server_port", 4000)
+func (dhs *defaultExplorerServer) init() {
+	host := dhs.config.GetString("ossicones_explorer_server_host", "0.0.0.0")
+	port := dhs.config.GetInt("ossicones_explorer_server_port", 4000)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
@@ -64,7 +64,7 @@ func (dhs *defaultHTTPServer) init() {
 	dhs.serveMux.HandleFunc("/add", dhs.add)
 }
 
-func (dhs *defaultHTTPServer) home(rw http.ResponseWriter, r *http.Request) {
+func (dhs *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
 	tempBlocks := ossiconesblockchain.GetOrCreate().AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
@@ -75,7 +75,7 @@ func (dhs *defaultHTTPServer) home(rw http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(rw, "home", data)
 }
 
-func (dhs *defaultHTTPServer) add(rw http.ResponseWriter, r *http.Request) {
+func (dhs *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		templates.ExecuteTemplate(rw, "add", nil)
@@ -87,12 +87,12 @@ func (dhs *defaultHTTPServer) add(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (dhs *defaultHTTPServer) Serve() {
+func (dhs *defaultExplorerServer) Serve() {
 	go func() {
-		fmt.Printf("Listening HTTP Server on %s\n", dhs.address)
+		fmt.Printf("Listening Explorer Server on %s\n", dhs.address)
 		log.Fatal(http.ListenAndServe(dhs.address, dhs.serveMux))
 	}()
 }
 
-func (dhs *defaultHTTPServer) Close() {
+func (dhs *defaultExplorerServer) Close() {
 }

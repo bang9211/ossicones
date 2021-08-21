@@ -1,4 +1,4 @@
-//go:build wireinject
+//+build wireinject
 
 package modules
 
@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bang9211/ossicones/implements/defaultapiserver"
-	"github.com/bang9211/ossicones/implements/defaulthttpserver"
+	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
+	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/implements/viperconfig"
-	"github.com/bang9211/ossicones/interfaces/apiserver"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
-	"github.com/bang9211/ossicones/interfaces/httpserver"
+	"github.com/bang9211/ossicones/interfaces/explorerserver"
+	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/google/wire"
 )
 
@@ -34,15 +34,15 @@ func InitConfig() (config.Config, error) {
 	return nil, nil
 }
 
-// InitHTTPServer injects dependencies and inits of HTTPServer.
-func InitHTTPServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (httpserver.HTTPServer, error) {
-	wire.Build(defaulthttpserver.GetOrCreate)
+// InitHTTPServer injects dependencies and inits of ExplorerServer.
+func InitHTTPServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) {
+	wire.Build(defaultexplorerserver.GetOrCreate)
 	return nil, nil
 }
 
 // InitAPIServer injects dependencies and inits of APiServer.
-func InitAPIServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (apiserver.APIServer, error) {
-	wire.Build(defaultapiserver.GetOrCreate)
+func InitAPIServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
+	wire.Build(defaultrestapiserver.GetOrCreate)
 	return nil, nil
 }
 
