@@ -12,9 +12,10 @@ import (
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/bang9211/ossicones/utils"
+	"github.com/gorilla/mux"
 )
 
-var das *defaultAPIServer
+var drs *defaultRESTAPIServer
 var once sync.Once
 
 type defaultURL struct {
@@ -46,9 +47,13 @@ type AddBlockBody struct {
 	Message string
 }
 
-type defaultAPIServer struct {
+type ErrorResponse struct {
+	ErrorMessage string `json:"errorMessage"`
+}
+
+type defaultRESTAPIServer struct {
 	config     config.Config
-	serveMux   *http.ServeMux
+	handler    *mux.Router
 	blockchain blockchain.Blockchain
 	homePath   string
 	address    string
@@ -60,72 +65,95 @@ func GetOrCreate(
 	config config.Config,
 	homePath string,
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
-	if das == nil {
+	if drs == nil {
 		once.Do(func() {
-			das = &defaultAPIServer{
+			drs = &defaultRESTAPIServer{
 				config:     config,
-				serveMux:   http.NewServeMux(),
+				handler:    mux.NewRouter(),
 				homePath:   homePath,
 				blockchain: blocchain,
 			}
-			das.init()
+			drs.init()
 		})
 	}
 
-	return das
+	return drs
 }
 
-func (dhs *defaultAPIServer) init() {
+func (dhs *defaultRESTAPIServer) init() {
 	host := dhs.config.GetString("ossicones_rest_api_server_host", "0.0.0.0")
 	port := dhs.config.GetInt("ossicones_rest_api_server_port", 4001)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
-	dhs.serveMux.HandleFunc("/", dhs.documentation)
-	dhs.serveMux.HandleFunc("/blocks", dhs.blocks)
+	dhs.handler.Use(jsonContentTypeMiddleware)
+	dhs.handler.HandleFunc("/", dhs.documentation).Methods("GET")
+	dhs.handler.HandleFunc("/blocks", dhs.blocks).Methods("GET", "POST")
+	dhs.handler.HandleFunc("/blocks/{height:[0-9]+}", dhs.block).Methods("GET")
 }
 
-func (das *defaultAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
+func jsonContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(rw, r)
+	})
+}
+
+func (drs *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []urlDescription{
 		{
-			URL:         defaultURL{das.address, "/"},
+			URL:         defaultURL{drs.address, "/"},
 			Method:      "GET",
 			Description: "See Documentation",
 		},
 		{
-			URL:         defaultURL{das.address, "/blocks"},
+			URL:         defaultURL{drs.address, "/blocks"},
 			Method:      "POST",
 			Description: "Add A Block",
 			Payload:     "data:string",
 		},
 		{
-			URL:         defaultURL{das.address, "/blocks/{id}"},
+			URL:         defaultURL{drs.address, "/blocks/{id}"},
 			Method:      "GET",
 			Description: "See A Block",
 		},
 	}
-	rw.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(rw).Encode(data)
 }
 
-func (das *defaultAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
+func (drs *defaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		rw.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(rw).Encode(das.blockchain.AllBlocks())
+		json.NewEncoder(rw).Encode(drs.blockchain.AllBlocks())
 	case "POST":
 		var addBlockBody AddBlockBody
 		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
-		das.blockchain.AddBlock(addBlockBody.Message)
+		drs.blockchain.AddBlock(addBlockBody.Message)
 		rw.WriteHeader(http.StatusCreated)
+	default:
+		rw.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func (das *defaultAPIServer) Serve() {
+func (drs *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["height"])
+	utils.HandleError(err)
+	block, err := drs.blockchain.GetBlock(id)
+	encoder := json.NewEncoder(rw)
+	if err == blockchain.ErrorNotFound {
+		encoder.Encode(ErrorResponse{err.Error()})
+	} else {
+		encoder.Encode(block)
+	}
+}
+
+func (drs *defaultRESTAPIServer) Serve() {
 	go func() {
-		fmt.Printf("Listening REST API Server on %s\n", das.address)
-		log.Fatal(http.ListenAndServe(das.address, das.serveMux))
+		fmt.Printf("Listening REST API Server on %s\n", drs.address)
+		log.Fatal(http.ListenAndServe(drs.address, drs.handler))
 	}()
 }
 
-func (das *defaultAPIServer) Close() {
+func (drs *defaultRESTAPIServer) Close() {
 }

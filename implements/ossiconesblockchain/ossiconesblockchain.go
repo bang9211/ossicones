@@ -13,9 +13,10 @@ var once sync.Once
 
 // OssiconesBlock for OssiconesBlockChain.
 type OssiconesBlock struct {
-	Data     string
-	Hash     string
-	PrevHash string
+	Data     string `json:"data"`
+	Hash     string `json:"hash"`
+	PrevHash string `json:"prevhash,omitempty"`
+	Height   int    `json:"height"`
 }
 
 func (b *OssiconesBlock) CalculateHash() {
@@ -43,6 +44,7 @@ func (obc *ossiconesBlockchain) createBlock(Data string) *OssiconesBlock {
 	newBlock := OssiconesBlock{
 		Data:     Data,
 		PrevHash: obc.getLastBlockHash(),
+		Height:   len(obc.blocks) + 1,
 	}
 	newBlock.CalculateHash()
 	return &newBlock
@@ -67,6 +69,13 @@ func (obc *ossiconesBlockchain) AllBlocks() []interface{} {
 		blocks[i] = block
 	}
 	return blocks
+}
+
+func (obc *ossiconesBlockchain) GetBlock(height int) (blockchain.Block, error) {
+	if height > len(obc.blocks) {
+		return nil, blockchain.ErrorNotFound
+	}
+	return obc.blocks[height-1], nil
 }
 
 func (obc *ossiconesBlockchain) PrintBlock() {

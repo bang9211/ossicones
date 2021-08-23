@@ -1,5 +1,7 @@
 package blockchain
 
+import "errors"
+
 type Block interface {
 	// CalculateHash calculates hash using sha256.
 	CalculateHash()
@@ -12,4 +14,8 @@ type Blockchain interface {
 	AllBlocks() []interface{}
 	// PrintBlock just prints all the blocks.
 	PrintBlock()
+	// GetBlock get block at the height of this blockchain.
+	GetBlock(hegiht int) (Block, error)
 }
+
+var ErrorNotFound = errors.New("block not found")

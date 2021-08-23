@@ -25,7 +25,7 @@ type homeData struct {
 
 type defaultExplorerServer struct {
 	config     config.Config
-	serveMux   *http.ServeMux
+	handler    *http.ServeMux
 	blockchain blockchain.Blockchain
 	homePath   string
 	address    string
@@ -41,7 +41,7 @@ func GetOrCreate(
 		once.Do(func() {
 			dhs = &defaultExplorerServer{
 				config:     config,
-				serveMux:   http.NewServeMux(),
+				handler:    http.NewServeMux(),
 				homePath:   homePath,
 				blockchain: blocchain,
 			}
@@ -60,8 +60,8 @@ func (dhs *defaultExplorerServer) init() {
 	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(dhs.homePath + "/templates/partials/*.gohtml"))
 
-	dhs.serveMux.HandleFunc("/", dhs.home)
-	dhs.serveMux.HandleFunc("/add", dhs.add)
+	dhs.handler.HandleFunc("/", dhs.home)
+	dhs.handler.HandleFunc("/add", dhs.add)
 }
 
 func (dhs *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
@@ -90,7 +90,7 @@ func (dhs *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 func (dhs *defaultExplorerServer) Serve() {
 	go func() {
 		fmt.Printf("Listening Explorer Server on %s\n", dhs.address)
-		log.Fatal(http.ListenAndServe(dhs.address, dhs.serveMux))
+		log.Fatal(http.ListenAndServe(dhs.address, dhs.handler))
 	}()
 }
 
