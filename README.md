@@ -18,6 +18,7 @@ Dev Plan=
 - Blockchain & Coin Features
 - Dependency Injection(Wire) : https://syntaxsugar.tistory.com/entry/Golang-Dependency-Injection
 - Configuration(Viper) : https://syntaxsugar.tistory.com/entry/Golang-Configuration
+- Test(Testify) : https://syntaxsugar.tistory.com/entry/GoGolang-Test
 - Logging(UNDEFINED)
 - Database(UNDEFINED)
 - Containerize(Docker)
