@@ -14,6 +14,11 @@ import (
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 )
 
+const (
+	defaultHost = "0.0.0.0"
+	defaultPort = 3000
+)
+
 var dhs *defaultExplorerServer
 var once sync.Once
 var templates *template.Template
@@ -53,8 +58,8 @@ func GetOrCreate(
 }
 
 func (dhs *defaultExplorerServer) init() {
-	host := dhs.config.GetString("ossicones_explorer_server_host", "0.0.0.0")
-	port := dhs.config.GetInt("ossicones_explorer_server_port", 4000)
+	host := dhs.config.GetString("ossicones_explorer_server_host", defaultHost)
+	port := dhs.config.GetInt("ossicones_explorer_server_port", defaultPort)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
@@ -65,7 +70,7 @@ func (dhs *defaultExplorerServer) init() {
 }
 
 func (dhs *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
-	tempBlocks := ossiconesblockchain.GetOrCreate().AllBlocks()
+	tempBlocks := ossiconesblockchain.GetOrCreate(dhs.config).AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
 		blocks = append(blocks, block.(blockchain.Block))

@@ -6,7 +6,10 @@ import (
 	"sync"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 )
+
+const defaultGenesisBlockData = "Genesis OssiconesBlock"
 
 var obc *ossiconesBlockchain
 var once sync.Once
@@ -24,17 +27,24 @@ func (b *OssiconesBlock) CalculateHash() {
 	b.Hash = fmt.Sprintf("%x", Hash)
 }
 
+func (b *OssiconesBlock) GetData() string {
+	return b.Data
+}
+
 type ossiconesBlockchain struct {
 	blocks []*OssiconesBlock
 }
 
 // GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
 // Otherwise. it creates and returns the object.
-func GetOrCreate() blockchain.Blockchain {
+func GetOrCreate(config config.Config) blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
 			obc = &ossiconesBlockchain{}
-			obc.AddBlock("Genesis OssiconesBlock")
+			data := config.GetString(
+				"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
+				defaultGenesisBlockData)
+			obc.AddBlock(data)
 		})
 	}
 	return obc

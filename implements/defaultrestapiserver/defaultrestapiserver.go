@@ -15,6 +15,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	defaultHost = "0.0.0.0"
+	defaultPort = 4000
+)
+
 var drs *defaultRESTAPIServer
 var once sync.Once
 
@@ -81,8 +86,8 @@ func GetOrCreate(
 }
 
 func (dhs *defaultRESTAPIServer) init() {
-	host := dhs.config.GetString("ossicones_rest_api_server_host", "0.0.0.0")
-	port := dhs.config.GetInt("ossicones_rest_api_server_port", 4001)
+	host := dhs.config.GetString("ossicones_rest_api_server_host", defaultHost)
+	port := dhs.config.GetInt("ossicones_rest_api_server_port", defaultPort)
 	dhs.address = host + ":" + strconv.Itoa(port)
 
 	dhs.handler.Use(jsonContentTypeMiddleware)

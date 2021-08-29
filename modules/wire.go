@@ -1,4 +1,5 @@
-//+build wireinject
+//go:build wireinject
+// +build wireinject
 
 package modules
 
@@ -18,12 +19,13 @@ import (
 )
 
 // TODO : Default set of ossicones
-var DefaultSet = wire.NewSet(
-	wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate()),
-)
+// var DefaultSet = wire.NewSet(
+// 	wire.InterfaceValue(new(config.Config), viperconfig.NewViperConfig()),
+// 	wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate()),
+// )
 
 // InitBlockchains injects dependencies and inits of Blockchain.
-func InitBlockchain() (blockchain.Blockchain, error) {
+func InitBlockchain(config config.Config) (blockchain.Blockchain, error) {
 	wire.Build(ossiconesblockchain.GetOrCreate)
 	return nil, nil
 }
@@ -50,7 +52,13 @@ func InitAPIServer(homePath string, config config.Config, blockchain blockchain.
 func InitModules(homePath string) {
 	fmt.Println("Init Modules")
 
-	bc, err := InitBlockchain()
+	config, err := InitConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	config.Load()
+
+	bc, err := InitBlockchain(config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,12 +66,6 @@ func InitModules(homePath string) {
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	// bc.PrintBlock()
-
-	config, err := InitConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	config.Load()
 
 	hs, err := InitHTTPServer(homePath, config, bc)
 	if err != nil {

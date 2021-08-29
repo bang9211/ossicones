@@ -5,6 +5,8 @@ import "errors"
 type Block interface {
 	// CalculateHash calculates hash using sha256.
 	CalculateHash()
+	// GetData gets data of the block.
+	GetData() string
 }
 
 type Blockchain interface {
