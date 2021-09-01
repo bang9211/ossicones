@@ -3,6 +3,7 @@ package viperconfig
 import (
 	"flag"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -19,11 +20,12 @@ const (
 
 type ViperConfig struct {
 	viper *viper.Viper
+	flag  *flag.FlagSet
 }
 
 // NewViperConfig returns new ViperConfig.
 func NewViperConfig() config.Config {
-	vc := ViperConfig{viper: viper.New()}
+	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	vc.init()
 	return &vc
 }
@@ -36,10 +38,10 @@ func (vc *ViperConfig) init() {
 }
 
 func (vc *ViperConfig) setFlags() {
-	flag.String("config", defaultConfigFile,
+	vc.flag.String("config", defaultConfigFile,
 		"Config file(envfile)[default : ossicones.conf]")
 
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.CommandLine.AddGoFlagSet(vc.flag)
 	pflag.Parse()
 	vc.viper.BindPFlags(pflag.CommandLine)
 }
