@@ -37,9 +37,10 @@ func TestAddBlock(t *testing.T) {
 
 	bc, err := modules.InitBlockchain(config)
 	Nil(t, err)
+	defer modules.Close()
 
 	blocks := bc.AllBlocks()
-	Equal(t, len(blocks), 1)
+	Equal(t, 1, len(blocks))
 
 	block, success := blocks[0].(blockchain.Block)
 	True(t, success)
@@ -50,7 +51,7 @@ func TestAddBlock(t *testing.T) {
 			bc.AddBlock(test.in)
 
 			blocks = bc.AllBlocks()
-			Equal(t, len(blocks), test.out)
+			Equal(t, test.out, len(blocks))
 
 			block, success := blocks[i+1].(blockchain.Block)
 			True(t, success)
@@ -67,7 +68,7 @@ func TestAllBlocks(t *testing.T) {
 	Nil(t, err)
 
 	blocks := bc.AllBlocks()
-	Equal(t, len(blocks), 1)
+	Equal(t, 1, len(blocks))
 
 	block, success := blocks[0].(blockchain.Block)
 	True(t, success)
@@ -78,7 +79,7 @@ func TestAllBlocks(t *testing.T) {
 			bc.AddBlock(test.in)
 
 			blocks = bc.AllBlocks()
-			Equal(t, len(blocks), test.out)
+			Equal(t, test.out, len(blocks))
 
 			block, success := blocks[i+1].(blockchain.Block)
 			True(t, success)
