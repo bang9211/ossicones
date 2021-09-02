@@ -7,7 +7,6 @@
 package modules
 
 import (
-	"fmt"
 	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
 	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
@@ -16,21 +15,20 @@ import (
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
-	"log"
 )
 
 // Injectors from wire.go:
-
-// InitBlockchains injects dependencies and inits of Blockchain.
-func InitBlockchain(config2 config.Config) (blockchain.Blockchain, error) {
-	blockchainBlockchain := ossiconesblockchain.GetOrCreate(config2)
-	return blockchainBlockchain, nil
-}
 
 // InitConfig injects dependencies and inits of Config.
 func InitConfig() (config.Config, error) {
 	configConfig := viperconfig.NewViperConfig()
 	return configConfig, nil
+}
+
+// InitBlockchains injects dependencies and inits of Blockchain.
+func InitBlockchain(config2 config.Config) (blockchain.Blockchain, error) {
+	blockchainBlockchain := ossiconesblockchain.GetOrCreate(config2)
+	return blockchainBlockchain, nil
 }
 
 // InitHTTPServer injects dependencies and inits of ExplorerServer.
@@ -43,43 +41,4 @@ func InitHTTPServer(homePath string, config2 config.Config, blockchain2 blockcha
 func InitAPIServer(homePath string, config2 config.Config, blockchain2 blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
 	restapiServer := defaultrestapiserver.GetOrCreate(config2, homePath, blockchain2)
 	return restapiServer, nil
-}
-
-// wire.go:
-
-// Init injects dependencies and inits of all modules.
-func InitModules(homePath string) {
-	fmt.Println("Init Modules")
-	config2, err := InitConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	config2.
-		Load()
-
-	bc, err := InitBlockchain(config2)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bc.AddBlock("First Block")
-	bc.AddBlock("Second Block")
-	bc.AddBlock("Thrid Block")
-
-	hs, err := InitHTTPServer(homePath, config2, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	hs.Serve()
-
-	as, err := InitAPIServer(homePath, config2, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	as.Serve()
-
-}
-
-// Close closes all modules gracefully.
-func Close() {
-	fmt.Printf("Closed Modules")
 }

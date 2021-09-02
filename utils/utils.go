@@ -70,9 +70,3 @@ func GetFileNameWithoutExtension(path string) string {
 	splited := strings.Split(file, ".")
 	return splited[0]
 }
-
-func GetFileExtension(path string) string {
-	file := filepath.Base(path)
-	splited := strings.Split(file, ".")
-	return splited[1]
-}

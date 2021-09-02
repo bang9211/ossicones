@@ -4,9 +4,6 @@
 package modules
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
 	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
@@ -24,15 +21,15 @@ import (
 // 	wire.InterfaceValue(new(blockchain.Blockchain), ossiconesblockchain.GetOrCreate()),
 // )
 
-// InitBlockchains injects dependencies and inits of Blockchain.
-func InitBlockchain(config config.Config) (blockchain.Blockchain, error) {
-	wire.Build(ossiconesblockchain.GetOrCreate)
-	return nil, nil
-}
-
 // InitConfig injects dependencies and inits of Config.
 func InitConfig() (config.Config, error) {
 	wire.Build(viperconfig.NewViperConfig)
+	return nil, nil
+}
+
+// InitBlockchains injects dependencies and inits of Blockchain.
+func InitBlockchain(config config.Config) (blockchain.Blockchain, error) {
+	wire.Build(ossiconesblockchain.GetOrCreate)
 	return nil, nil
 }
 
@@ -46,43 +43,4 @@ func InitHTTPServer(homePath string, config config.Config, blockchain blockchain
 func InitAPIServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
 	wire.Build(defaultrestapiserver.GetOrCreate)
 	return nil, nil
-}
-
-// Init injects dependencies and inits of all modules.
-func InitModules(homePath string) {
-	fmt.Println("Init Modules")
-
-	config, err := InitConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	config.Load()
-
-	bc, err := InitBlockchain(config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bc.AddBlock("First Block")
-	bc.AddBlock("Second Block")
-	bc.AddBlock("Thrid Block")
-	// bc.PrintBlock()
-
-	hs, err := InitHTTPServer(homePath, config, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	hs.Serve()
-
-	as, err := InitAPIServer(homePath, config, bc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	as.Serve()
-
-}
-
-// Close closes all modules gracefully.
-func Close() {
-	//todo
-	fmt.Printf("Closed Modules")
 }
