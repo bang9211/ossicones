@@ -36,7 +36,7 @@ type ossiconesBlockchain struct {
 }
 
 // GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
-// Otherwise. it creates and returns the object.
+// Otherwise, it creates and returns the object.
 func GetOrCreate(config config.Config) blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
@@ -50,46 +50,51 @@ func GetOrCreate(config config.Config) blockchain.Blockchain {
 	return obc
 }
 
-func (obc *ossiconesBlockchain) createBlock(Data string) *OssiconesBlock {
+func (o *ossiconesBlockchain) createBlock(Data string) *OssiconesBlock {
 	newBlock := OssiconesBlock{
 		Data:     Data,
-		PrevHash: obc.getLastBlockHash(),
-		Height:   len(obc.blocks) + 1,
+		PrevHash: o.getLastBlockHash(),
+		Height:   len(o.blocks) + 1,
 	}
 	newBlock.CalculateHash()
 	return &newBlock
 }
 
-func (obc *ossiconesBlockchain) getLastBlockHash() string {
-	if len(obc.blocks) > 0 {
-		return obc.blocks[len(obc.blocks)-1].Hash
+func (o *ossiconesBlockchain) getLastBlockHash() string {
+	if len(o.blocks) > 0 {
+		return o.blocks[len(o.blocks)-1].Hash
 	}
 	return ""
 }
 
-func (obc *ossiconesBlockchain) AddBlock(Data string) {
-	newBlock := obc.createBlock(Data)
+func (o *ossiconesBlockchain) AddBlock(Data string) {
+	newBlock := o.createBlock(Data)
 	newBlock.CalculateHash()
-	obc.blocks = append(obc.blocks, newBlock)
+	o.blocks = append(o.blocks, newBlock)
 }
 
-func (obc *ossiconesBlockchain) AllBlocks() []interface{} {
-	blocks := make([]interface{}, len(obc.blocks))
-	for i, block := range obc.blocks {
+func (o *ossiconesBlockchain) AllBlocks() []interface{} {
+	blocks := make([]interface{}, len(o.blocks))
+	for i, block := range o.blocks {
 		blocks[i] = block
 	}
 	return blocks
 }
 
-func (obc *ossiconesBlockchain) GetBlock(height int) (blockchain.Block, error) {
-	if height > len(obc.blocks) {
+func (o *ossiconesBlockchain) GetBlock(height int) (blockchain.Block, error) {
+	if height > len(o.blocks) {
 		return nil, blockchain.ErrorNotFound
 	}
-	return obc.blocks[height-1], nil
+	return o.blocks[height-1], nil
 }
 
-func (obc *ossiconesBlockchain) PrintBlock() {
-	for i, OssiconesBlock := range obc.blocks {
+func (o *ossiconesBlockchain) PrintBlock() {
+	for i, OssiconesBlock := range o.blocks {
 		fmt.Println(i, ":", *OssiconesBlock)
 	}
+}
+
+func (o *ossiconesBlockchain) Close() error {
+	obc = nil
+	return nil
 }

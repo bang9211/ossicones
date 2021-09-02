@@ -37,7 +37,7 @@ type defaultExplorerServer struct {
 }
 
 // GetOrCreate returns the existing singletone object of DefaultHTTPServer.
-// Otherwise. it creates and returns the object.
+// Otherwise, it creates and returns the object.
 func GetOrCreate(
 	config config.Config,
 	homePath string,
@@ -57,20 +57,20 @@ func GetOrCreate(
 	return dhs
 }
 
-func (dhs *defaultExplorerServer) init() {
-	host := dhs.config.GetString("ossicones_explorer_server_host", defaultHost)
-	port := dhs.config.GetInt("ossicones_explorer_server_port", defaultPort)
-	dhs.address = host + ":" + strconv.Itoa(port)
+func (d *defaultExplorerServer) init() {
+	host := d.config.GetString("ossicones_explorer_server_host", defaultHost)
+	port := d.config.GetInt("ossicones_explorer_server_port", defaultPort)
+	d.address = host + ":" + strconv.Itoa(port)
 
-	templates = template.Must(template.ParseGlob(dhs.homePath + "/templates/pages/*.gohtml"))
-	templates = template.Must(templates.ParseGlob(dhs.homePath + "/templates/partials/*.gohtml"))
+	templates = template.Must(template.ParseGlob(d.homePath + "/templates/pages/*.gohtml"))
+	templates = template.Must(templates.ParseGlob(d.homePath + "/templates/partials/*.gohtml"))
 
-	dhs.handler.HandleFunc("/", dhs.home)
-	dhs.handler.HandleFunc("/add", dhs.add)
+	d.handler.HandleFunc("/", d.home)
+	d.handler.HandleFunc("/add", d.add)
 }
 
-func (dhs *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
-	tempBlocks := ossiconesblockchain.GetOrCreate(dhs.config).AllBlocks()
+func (d *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
+	tempBlocks := ossiconesblockchain.GetOrCreate(d.config).AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
 		blocks = append(blocks, block.(blockchain.Block))
@@ -80,24 +80,26 @@ func (dhs *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) 
 	templates.ExecuteTemplate(rw, "home", data)
 }
 
-func (dhs *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
+func (d *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		templates.ExecuteTemplate(rw, "add", nil)
 	case "POST":
 		r.ParseForm()
 		data := r.Form.Get("blockData")
-		dhs.blockchain.AddBlock(data)
+		d.blockchain.AddBlock(data)
 		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
 	}
 }
 
-func (dhs *defaultExplorerServer) Serve() {
+func (d *defaultExplorerServer) Serve() {
 	go func() {
-		fmt.Printf("Listening Explorer Server on %s\n", dhs.address)
-		log.Fatal(http.ListenAndServe(dhs.address, dhs.handler))
+		fmt.Printf("Listening Explorer Server on %s\n", d.address)
+		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
 }
 
-func (dhs *defaultExplorerServer) Close() {
+func (d *defaultExplorerServer) Close() error {
+	dhs = nil
+	return nil
 }

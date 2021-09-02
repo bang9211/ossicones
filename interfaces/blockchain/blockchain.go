@@ -18,6 +18,8 @@ type Blockchain interface {
 	PrintBlock()
 	// GetBlock get block at the height of this blockchain.
 	GetBlock(hegiht int) (Block, error)
+	// Close closes blockchain
+	Close() error
 }
 
 var ErrorNotFound = errors.New("block not found")

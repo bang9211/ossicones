@@ -187,3 +187,7 @@ func (vc *ViperConfig) GetStringMapSlice(key string, defaultVal map[string][]str
 	}
 	return defaultVal
 }
+
+func (vc *ViperConfig) Close() error {
+	return nil
+}

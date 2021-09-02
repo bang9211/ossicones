@@ -65,7 +65,7 @@ type defaultRESTAPIServer struct {
 }
 
 // GetOrCreate returns the existing singletone object of DefaultAPIServer.
-// Otherwise. it creates and returns the object.
+// Otherwise, it creates and returns the object.
 func GetOrCreate(
 	config config.Config,
 	homePath string,
@@ -85,15 +85,15 @@ func GetOrCreate(
 	return drs
 }
 
-func (dhs *defaultRESTAPIServer) init() {
-	host := dhs.config.GetString("ossicones_rest_api_server_host", defaultHost)
-	port := dhs.config.GetInt("ossicones_rest_api_server_port", defaultPort)
-	dhs.address = host + ":" + strconv.Itoa(port)
+func (d *defaultRESTAPIServer) init() {
+	host := d.config.GetString("ossicones_rest_api_server_host", defaultHost)
+	port := d.config.GetInt("ossicones_rest_api_server_port", defaultPort)
+	d.address = host + ":" + strconv.Itoa(port)
 
-	dhs.handler.Use(jsonContentTypeMiddleware)
-	dhs.handler.HandleFunc("/", dhs.documentation).Methods("GET")
-	dhs.handler.HandleFunc("/blocks", dhs.blocks).Methods("GET", "POST")
-	dhs.handler.HandleFunc("/blocks/{height:[0-9]+}", dhs.block).Methods("GET")
+	d.handler.Use(jsonContentTypeMiddleware)
+	d.handler.HandleFunc("/", d.documentation).Methods("GET")
+	d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
+	d.handler.HandleFunc("/blocks/{height:[0-9]+}", d.block).Methods("GET")
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {
@@ -103,21 +103,21 @@ func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (drs *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
+func (d *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []urlDescription{
 		{
-			URL:         defaultURL{drs.address, "/"},
+			URL:         defaultURL{d.address, "/"},
 			Method:      "GET",
 			Description: "See Documentation",
 		},
 		{
-			URL:         defaultURL{drs.address, "/blocks"},
+			URL:         defaultURL{d.address, "/blocks"},
 			Method:      "POST",
 			Description: "Add A Block",
 			Payload:     "data:string",
 		},
 		{
-			URL:         defaultURL{drs.address, "/blocks/{id}"},
+			URL:         defaultURL{d.address, "/blocks/{id}"},
 			Method:      "GET",
 			Description: "See A Block",
 		},
@@ -125,26 +125,26 @@ func (drs *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.R
 	json.NewEncoder(rw).Encode(data)
 }
 
-func (drs *defaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
+func (d *defaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		rw.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(rw).Encode(drs.blockchain.AllBlocks())
+		json.NewEncoder(rw).Encode(d.blockchain.AllBlocks())
 	case "POST":
 		var addBlockBody AddBlockBody
 		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
-		drs.blockchain.AddBlock(addBlockBody.Message)
+		d.blockchain.AddBlock(addBlockBody.Message)
 		rw.WriteHeader(http.StatusCreated)
 	default:
 		rw.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func (drs *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
+func (d *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["height"])
 	utils.HandleError(err)
-	block, err := drs.blockchain.GetBlock(id)
+	block, err := d.blockchain.GetBlock(id)
 	encoder := json.NewEncoder(rw)
 	if err == blockchain.ErrorNotFound {
 		encoder.Encode(ErrorResponse{err.Error()})
@@ -153,12 +153,14 @@ func (drs *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (drs *defaultRESTAPIServer) Serve() {
+func (d *defaultRESTAPIServer) Serve() {
 	go func() {
-		fmt.Printf("Listening REST API Server on %s\n", drs.address)
-		log.Fatal(http.ListenAndServe(drs.address, drs.handler))
+		fmt.Printf("Listening REST API Server on %s\n", d.address)
+		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
 }
 
-func (drs *defaultRESTAPIServer) Close() {
+func (d *defaultRESTAPIServer) Close() error {
+	drs = nil
+	return nil
 }
