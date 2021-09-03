@@ -61,7 +61,7 @@ func GetFileDir(path string) string {
 	return filepath.Dir(path)
 }
 
-func GetFileNameFromPath(path string) string {
+func GetFileName(path string) string {
 	return filepath.Base(path)
 }
 
@@ -69,4 +69,21 @@ func GetFileNameWithoutExtension(path string) string {
 	file := filepath.Base(path)
 	splited := strings.Split(file, ".")
 	return splited[0]
+}
+
+func GetFileExtension(path string) string {
+	ext := filepath.Ext(path)
+	if len(ext) > 0 {
+		return ext[1:]
+	}
+	return ext
+}
+
+func IsContain(key string, list []string) bool {
+	for _, s := range list {
+		if s == key {
+			return true
+		}
+	}
+	return false
 }

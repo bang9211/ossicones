@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/bang9211/ossicones/interfaces/config"
@@ -14,8 +13,7 @@ import (
 )
 
 const (
-	defaultConfigFile = "ossicones.conf"
-	configFileType    = "env"
+	defaultConfigFile = "ossicones.conf" //.env
 )
 
 type ViperConfig struct {
@@ -47,12 +45,19 @@ func (vc *ViperConfig) setFlags() {
 }
 
 func (vc *ViperConfig) preconfigForRead(configFilePath string) {
-	if !strings.Contains(configFilePath, "/") {
-		vc.viper.AddConfigPath(".")
-	}
 	vc.viper.AddConfigPath(utils.GetFileDir(configFilePath))
-	vc.viper.SetConfigName(utils.GetFileNameFromPath(configFilePath))
-	vc.viper.SetConfigType(configFileType)
+	ext := utils.GetFileExtension(configFilePath)
+	if ext == "conf" {
+		vc.viper.SetConfigName(utils.GetFileName(configFilePath))
+		vc.viper.SetConfigType("env")
+	} else {
+		supportedType := utils.IsContain(ext, viper.SupportedExts)
+		if supportedType {
+			vc.viper.SetConfigFile(configFilePath)
+		} else {
+			vc.viper.SetConfigName(utils.GetFileName(configFilePath))
+		}
+	}
 	vc.viper.AutomaticEnv()
 }
 
