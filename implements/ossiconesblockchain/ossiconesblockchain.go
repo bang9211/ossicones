@@ -32,6 +32,7 @@ func (b *OssiconesBlock) GetData() string {
 }
 
 type ossiconesBlockchain struct {
+	config config.Config
 	blocks []*OssiconesBlock
 }
 
@@ -40,7 +41,7 @@ type ossiconesBlockchain struct {
 func GetOrCreate(config config.Config) blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
-			obc = &ossiconesBlockchain{}
+			obc = &ossiconesBlockchain{config: config}
 			data := config.GetString(
 				"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
 				defaultGenesisBlockData)
@@ -94,7 +95,15 @@ func (o *ossiconesBlockchain) PrintBlock() {
 	}
 }
 
+func (o *ossiconesBlockchain) Reset() error {
+	o.blocks = []*OssiconesBlock{}
+	data := o.config.GetString(
+		"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
+		defaultGenesisBlockData)
+	obc.AddBlock(data)
+	return nil
+}
+
 func (o *ossiconesBlockchain) Close() error {
-	obc = nil
 	return nil
 }

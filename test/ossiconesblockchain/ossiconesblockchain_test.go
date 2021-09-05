@@ -32,12 +32,14 @@ var allblockstests = []struct {
 }
 
 func TestAddBlock(t *testing.T) {
-	config, err := modules.InitConfig()
+	cfg, err := modules.InitConfig()
 	Nil(t, err)
+	defer Nil(t, cfg.Close())
 
-	bc, err := modules.InitBlockchain(config)
+	bc, err := modules.InitBlockchain(cfg)
 	Nil(t, err)
-	defer modules.Close()
+	Nil(t, bc.Reset())
+	defer Nil(t, bc.Close())
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -61,11 +63,14 @@ func TestAddBlock(t *testing.T) {
 }
 
 func TestAllBlocks(t *testing.T) {
-	config, err := modules.InitConfig()
+	cfg, err := modules.InitConfig()
 	Nil(t, err)
+	defer Nil(t, cfg.Close())
 
-	bc, err := modules.InitBlockchain(config)
+	bc, err := modules.InitBlockchain(cfg)
 	Nil(t, err)
+	Nil(t, bc.Reset())
+	defer Nil(t, bc.Close())
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
