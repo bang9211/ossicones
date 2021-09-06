@@ -25,3 +25,4 @@ type Blockchain interface {
 }
 
 var ErrorNotFound = errors.New("block not found")
+var ErrorUnknown = errors.New("unknown")
