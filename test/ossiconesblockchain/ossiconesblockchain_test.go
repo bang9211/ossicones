@@ -44,7 +44,10 @@ var getblocktests = []struct {
 	{"Get Test Data4 block", "Test Data4", 5, "Test Data4"},
 }
 
+const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
+
 func TestAddBlock(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, bc)
@@ -52,9 +55,11 @@ func TestAddBlock(t *testing.T) {
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
 
+	Implements(t, (*blockchain.Block)(nil), blocks[0],
+		"It must implements of interface blockchain.Block")
 	block, success := blocks[0].(blockchain.Block)
 	True(t, success)
-	Equal(t, "Genesis OssiconesBlock", block.GetData())
+	Equal(t, genesisBlockData, block.GetData())
 
 	for i, test := range addblocktests {
 		t.Run(test.title, func(t *testing.T) {
@@ -63,6 +68,8 @@ func TestAddBlock(t *testing.T) {
 			blocks = bc.AllBlocks()
 			Equal(t, test.expected, len(blocks))
 
+			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
+				"It must implements of interface blockchain.Block")
 			block, success := blocks[i+1].(blockchain.Block)
 			True(t, success)
 			Equal(t, test.input, block.GetData())
@@ -71,6 +78,7 @@ func TestAddBlock(t *testing.T) {
 }
 
 func TestAllBlocks(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, bc)
@@ -78,9 +86,11 @@ func TestAllBlocks(t *testing.T) {
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
 
+	Implements(t, (*blockchain.Block)(nil), blocks[0],
+		"It must implements of interface blockchain.Block")
 	block, success := blocks[0].(blockchain.Block)
 	True(t, success)
-	Equal(t, "Genesis OssiconesBlock", block.GetData())
+	Equal(t, genesisBlockData, block.GetData())
 
 	for i, test := range allblockstests {
 		t.Run(test.title, func(t *testing.T) {
@@ -89,6 +99,8 @@ func TestAllBlocks(t *testing.T) {
 			blocks = bc.AllBlocks()
 			Equal(t, test.expected, len(blocks))
 
+			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
+				"It must implements of interface blockchain.Block")
 			block, success := blocks[i+1].(blockchain.Block)
 			True(t, success)
 			Equal(t, test.input, block.GetData())
@@ -97,6 +109,7 @@ func TestAllBlocks(t *testing.T) {
 }
 
 func TestGetBlock(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, bc)
@@ -104,13 +117,15 @@ func TestGetBlock(t *testing.T) {
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
 
+	Implements(t, (*blockchain.Block)(nil), blocks[0],
+		"It must implements of interface blockchain.Block")
 	block, success := blocks[0].(blockchain.Block)
 	True(t, success)
-	Equal(t, "Genesis OssiconesBlock", block.GetData())
+	Equal(t, genesisBlockData, block.GetData())
 
 	genesisBlock, err := bc.GetBlock(1)
 	NoError(t, err, "Failed to get a generation block")
-	Equal(t, "Genesis OssiconesBlock", genesisBlock.GetData())
+	Equal(t, genesisBlockData, genesisBlock.GetData())
 
 	blockCount := len(bc.AllBlocks())
 	for _, test := range getblocktests {
@@ -138,6 +153,7 @@ func TestGetBlock(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, bc)
