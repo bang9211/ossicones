@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
-	"github.com/bang9211/ossicones/modules"
 
 	. "github.com/stretchr/testify/assert"
 )
@@ -15,10 +13,10 @@ var addblocktests = []struct {
 	input    string
 	expected int
 }{
-	{"Added 1 block", "Test Data1", 2},
-	{"Added 2 block", "Test Data2", 3},
-	{"Added 3 block", "Test Data3", 4},
-	{"Added 4 block", "Test Data4", 5},
+	{"Adding 1 block", "Test Data1", 2},
+	{"Adding 2 block", "Test Data2", 3},
+	{"Adding 3 block", "Test Data3", 4},
+	{"Adding 4 block", "Test Data4", 5},
 }
 
 var allblockstests = []struct {
@@ -26,10 +24,10 @@ var allblockstests = []struct {
 	input    string
 	expected int
 }{
-	{"Existed 2 block", "Test Data1", 2},
-	{"Existed 3 block", "Test Data2", 3},
-	{"Existed 4 block", "Test Data3", 4},
-	{"Existed 5 block", "Test Data4", 5},
+	{"Checking 2 block", "Test Data1", 2},
+	{"Checking 3 block", "Test Data2", 3},
+	{"Checking 4 block", "Test Data3", 4},
+	{"Checking 5 block", "Test Data4", 5},
 }
 
 var getblocktests = []struct {
@@ -38,19 +36,26 @@ var getblocktests = []struct {
 	input_index int
 	expected    string
 }{
-	{"Get Test Data1 block", "Test Data1", 2, "Test Data1"},
-	{"Get Test Data2 block", "Test Data2", 3, "Test Data2"},
-	{"Get Test Data3 block", "Test Data3", 4, "Test Data3"},
-	{"Get Test Data4 block", "Test Data4", 5, "Test Data4"},
+	{"Getting Test Data1 block", "Test Data1", 2, "Test Data1"},
+	{"Getting Test Data2 block", "Test Data2", 3, "Test Data2"},
+	{"Getting Test Data3 block", "Test Data3", 4, "Test Data3"},
+	{"Getting Test Data4 block", "Test Data4", 5, "Test Data4"},
 }
 
-const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
+func TestImplementsBlockchain(t *testing.T) {
+	cfg, bc, err := initTest()
+	NoError(t, err, "Failed to initTest()")
+	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
+
+	Implements(t, (*blockchain.Blockchain)(nil), bc,
+		"It must implements of interface blockchain.Blockchain")
+}
 
 func TestAddBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer closeTest(cfg, bc)
+	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -81,7 +86,7 @@ func TestAllBlocks(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer closeTest(cfg, bc)
+	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -112,7 +117,7 @@ func TestGetBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer closeTest(cfg, bc)
+	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -156,7 +161,7 @@ func TestReset(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer closeTest(cfg, bc)
+	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
 
 	blocks := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -171,33 +176,4 @@ func TestReset(t *testing.T) {
 
 	blocks = bc.AllBlocks()
 	Equal(t, 1, len(blocks))
-}
-
-//init
-func initTest() (config.Config, blockchain.Blockchain, error) {
-	cfg, err := modules.InitConfig()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	bc, err := modules.InitBlockchain(cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	err = bc.Reset()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return cfg, bc, nil
-}
-
-//close
-func closeTest(cfg config.Config, bc blockchain.Blockchain) error {
-	err := bc.Close()
-	if err != nil {
-		return err
-	}
-	return cfg.Close()
 }
