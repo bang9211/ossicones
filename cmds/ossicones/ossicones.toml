@@ -1,12 +1,12 @@
-# envfile
+title = "OSSICONES CONFIGURATION"
 
 # [MODULES]
 # - OSSICONES_ACTIVATING_MODULES : 
-#   {space seperated, case-insensitive} list of module's name(in /wire/modules.go)
-ossicones_activating_modules=viperconfig ossiconesblockchain defaultexplorerserver defaultrestapiserver
+#   {comma/space seperated, case-insensitive} list of module's name(in /wire/modules.go)
+ossicones_activating_modules=[ossiconesblockchain, viperconfig, defaultexplorerserver, defaultrestapiserver]
 
 # [COMMON]
-ossicones_src_home=/Users/hanyoungtak/Documents/workspace/go_project/ossicones
+ossicones_src_home="/Users/hanyoungtak/Documents/workspace/go_project/ossicones"
 
 # [OSSICONES_BLOCKCHAIN]
 ossicones_blockchain_genesis_block_data="Genesis OssiconesBlock"

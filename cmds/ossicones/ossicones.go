@@ -27,7 +27,8 @@ func main() {
 	}
 
 	// Dependency Injection using Wire
-	modules.InitModules(homePath)
+	// modules.InitModules(homePath)
+	modules.InjectDefaultSet(homePath)
 	defer modules.Close()
 
 	quit := make(chan os.Signal, 1)

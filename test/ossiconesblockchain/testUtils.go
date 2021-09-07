@@ -14,7 +14,7 @@ func initTest() (config.Config, blockchain.Blockchain, error) {
 		return nil, nil, err
 	}
 
-	bc, err := modules.InitBlockchain(cfg)
+	bc, err := modules.InjectOssiconesBlockchain(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
