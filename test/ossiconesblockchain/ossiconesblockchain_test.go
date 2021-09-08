@@ -62,8 +62,8 @@ func TestAddBlock(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[0],
 		"It must implements of interface blockchain.Block")
-	block, success := blocks[0].(blockchain.Block)
-	True(t, success)
+	block, ok := blocks[0].(blockchain.Block)
+	True(t, ok)
 	Equal(t, genesisBlockData, block.GetData())
 
 	for i, test := range addblocktests {
@@ -75,8 +75,8 @@ func TestAddBlock(t *testing.T) {
 
 			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
 				"It must implements of interface blockchain.Block")
-			block, success := blocks[i+1].(blockchain.Block)
-			True(t, success)
+			block, ok := blocks[i+1].(blockchain.Block)
+			True(t, ok)
 			Equal(t, test.input, block.GetData())
 		})
 	}
@@ -93,8 +93,8 @@ func TestAllBlocks(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[0],
 		"It must implements of interface blockchain.Block")
-	block, success := blocks[0].(blockchain.Block)
-	True(t, success)
+	block, ok := blocks[0].(blockchain.Block)
+	True(t, ok)
 	Equal(t, genesisBlockData, block.GetData())
 
 	for i, test := range allblockstests {
@@ -106,8 +106,8 @@ func TestAllBlocks(t *testing.T) {
 
 			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
 				"It must implements of interface blockchain.Block")
-			block, success := blocks[i+1].(blockchain.Block)
-			True(t, success)
+			block, ok := blocks[i+1].(blockchain.Block)
+			True(t, ok)
 			Equal(t, test.input, block.GetData())
 		})
 	}
@@ -124,8 +124,8 @@ func TestGetBlock(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[0],
 		"It must implements of interface blockchain.Block")
-	block, success := blocks[0].(blockchain.Block)
-	True(t, success)
+	block, ok := blocks[0].(blockchain.Block)
+	True(t, ok)
 	Equal(t, genesisBlockData, block.GetData())
 
 	genesisBlock, err := bc.GetBlock(1)

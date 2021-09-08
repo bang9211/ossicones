@@ -1,5 +1,5 @@
-//go:build !wireinject
-// +build !wireinject
+//go:build wireinject
+// +build wireinject
 
 package modules
 
@@ -19,12 +19,14 @@ import (
 // Dependency Injection List
 //
 // injection_list stores A(implement) with B(injector) using map.
-//
 // For wiring name of implment using in config with injector function.
 //
 // Examples :
 //
-// - map[string]interface{}{"viperconfig": InjectViperConfig}
+//	var injection_list = map[string]interface{}{
+// 		"viperconfig": 			InjectViperConfig,
+// 		"ossiconesblockchain":	InjectOssiconesBlockchain,
+// 	}
 //
 var injection_list = map[string]interface{}{
 	"viperconfig":           InjectViperConfig,
@@ -34,16 +36,19 @@ var injection_list = map[string]interface{}{
 }
 
 //
-// Only dependency wiring be executed in wire.go.
+// Dependency wiring should be specify in wire.go.
 //
-// Function Naming Form :
+// Inject functions can have several dependency parameters
+// and should have two returns(interface, error).
+//
+// Function Form :
 //
 // - func Inject{Implement}() ({Interface}, error) {}
 //
 // Examples :
 //
 // - func InjectViperConfig() (config.Config, error){}
-// - func InjectOssiconesBlockChain(){}
+// - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error){}
 //
 
 // InjectViperConfig injects dependencies and inits of Config.
@@ -59,13 +64,21 @@ func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, err
 }
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
-func InjectDefaultExplorerServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (explorerserver.ExplorerServer, error) {
+func InjectDefaultExplorerServer(
+	homePath string,
+	config config.Config,
+	blockchain blockchain.Blockchain,
+) (explorerserver.ExplorerServer, error) {
 	wire.Build(defaultexplorerserver.GetOrCreate)
 	return nil, nil
 }
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
-func InjectDefaultRESTAPIServer(homePath string, config config.Config, blockchain blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
+func InjectDefaultRESTAPIServer(
+	homePath string,
+	config config.Config,
+	blockchain blockchain.Blockchain,
+) (restapiserver.RESTAPIServer, error) {
 	wire.Build(defaultrestapiserver.GetOrCreate)
 	return nil, nil
 }

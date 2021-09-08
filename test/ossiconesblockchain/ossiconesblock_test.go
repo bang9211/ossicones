@@ -47,13 +47,13 @@ func TestCalculateHash(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 		"It must implements of interface blockchain.Block")
-	block, success := blocks[len(blocks)-1].(blockchain.Block)
-	True(t, success)
+	block, ok := blocks[len(blocks)-1].(blockchain.Block)
+	True(t, ok)
 
 	IsType(t, (*ossiconesblockchain.OssiconesBlock)(nil), block,
 		"It should be equal of type ossiconesblockchain.OssiconesBlock")
-	ossiconesBlock, success := block.(*ossiconesblockchain.OssiconesBlock)
-	True(t, success)
+	ossiconesBlock, ok := block.(*ossiconesblockchain.OssiconesBlock)
+	True(t, ok)
 
 	Equal(t, ossiconesBlock.Hash,
 		"90aa8185295e7f87c0c1608967e4abf6a5e201938180a3a6cc8d891d51283532")
@@ -72,13 +72,13 @@ func TestCalculateHash(t *testing.T) {
 			blocks = bc.AllBlocks()
 			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 				"It must implements of interface blockchain.Block")
-			block, success := blocks[len(blocks)-1].(blockchain.Block)
-			True(t, success)
+			block, ok := blocks[len(blocks)-1].(blockchain.Block)
+			True(t, ok)
 
 			IsType(t, (*ossiconesblockchain.OssiconesBlock)(nil), block,
 				"It should be equal of type ossiconesblockchain.OssiconesBlock")
-			ossiconesBlock, success = block.(*ossiconesblockchain.OssiconesBlock)
-			True(t, success)
+			ossiconesBlock, ok = block.(*ossiconesblockchain.OssiconesBlock)
+			True(t, ok)
 		})
 	}
 }
@@ -94,8 +94,8 @@ func TestGetData(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 		"It must implements of interface blockchain.Block")
-	block, success := blocks[len(blocks)-1].(blockchain.Block)
-	True(t, success)
+	block, ok := blocks[len(blocks)-1].(blockchain.Block)
+	True(t, ok)
 
 	Equal(t, block.GetData(), genesisBlockData)
 
@@ -105,8 +105,8 @@ func TestGetData(t *testing.T) {
 			blocks = bc.AllBlocks()
 			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 				"It must implements of interface blockchain.Block")
-			block, success := blocks[len(blocks)-1].(blockchain.Block)
-			True(t, success)
+			block, ok := blocks[len(blocks)-1].(blockchain.Block)
+			True(t, ok)
 			Equal(t, block.GetData(), test.expected)
 		})
 	}
