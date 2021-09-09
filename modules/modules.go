@@ -46,6 +46,7 @@ func InjectDefaultSet() (
 	NotActivatedList := make([]string, len(activatingModules))
 	copy(NotActivatedList, activatingModules)
 
+	activatedList := []string{}
 	tryCount := 0
 	for len(NotActivatedList) > 0 && tryCount < len(NotActivatedList)*len(NotActivatedList) {
 		for _, moduleName := range NotActivatedList {
@@ -61,8 +62,11 @@ func InjectDefaultSet() (
 					return nil, nil, nil, nil, err
 				}
 				instance_list[moduleName] = closableModule
-				NotActivatedList = utils.RemoveElement(NotActivatedList, moduleName)
+				activatedList = append(activatedList, moduleName)
 			}
+		}
+		for _, activated := range activatedList {
+			NotActivatedList = utils.RemoveElement(NotActivatedList, activated)
 		}
 		tryCount++
 	}
@@ -97,8 +101,16 @@ func getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
 		dependency := methodType.In(i)
 		find := false
 		for _, instance := range instance_list {
-			instanceType := reflect.TypeOf(instance)
-			if instanceType.Name() == dependency.Name() {
+			// instanceType := reflect.ValueOf(instance).Type()
+			// fmt.Println(instanceType.Name())
+			// fmt.Println(dependency.Name())
+			// if instanceType.Name() == dependency.Name() {
+			// 	dependencies = append(dependencies, reflect.ValueOf(instance))
+			// 	find = true
+			// 	break
+			// }
+			instanceValue := reflect.ValueOf(instance)
+			if instanceValue.CanConvert(dependency) {
 				dependencies = append(dependencies, reflect.ValueOf(instance))
 				find = true
 				break
