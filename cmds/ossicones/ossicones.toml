@@ -3,7 +3,7 @@ title = "OSSICONES CONFIGURATION"
 # [MODULES]
 # - OSSICONES_ACTIVATING_MODULES : 
 #   {comma/space seperated, case-insensitive} list of module's name(in /wire/modules.go)
-ossicones_activating_modules=[ossiconesblockchain, viperconfig, defaultexplorerserver, defaultrestapiserver]
+ossicones_activating_modules=["ossiconesblockchain", "viperconfig", "defaultexplorerserver", "defaultrestapiserver"]
 
 # [COMMON]
 ossicones_src_home="/Users/hanyoungtak/Documents/workspace/go_project/ossicones"
@@ -12,9 +12,9 @@ ossicones_src_home="/Users/hanyoungtak/Documents/workspace/go_project/ossicones"
 ossicones_blockchain_genesis_block_data="Genesis OssiconesBlock"
 
 # [HTTP_SERVER]
-ossicones_explorer_server_host=0.0.0.0
+ossicones_explorer_server_host="0.0.0.0"
 ossicones_explorer_server_port=3000
 
 # [API_SERVER]
-ossicones_rest_api_server_host=0.0.0.0
+ossicones_rest_api_server_host="0.0.0.0"
 ossicones_rest_api_server_port=4000
