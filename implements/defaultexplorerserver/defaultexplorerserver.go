@@ -12,6 +12,7 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
+	"github.com/bang9211/ossicones/utils"
 )
 
 const (
@@ -40,24 +41,31 @@ type defaultExplorerServer struct {
 // Otherwise, it creates and returns the object.
 func GetOrCreate(
 	config config.Config,
-	homePath string,
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
 	if dhs == nil {
 		once.Do(func() {
 			dhs = &defaultExplorerServer{
 				config:     config,
 				handler:    http.NewServeMux(),
-				homePath:   homePath,
 				blockchain: blocchain,
 			}
-			dhs.init()
 		})
+		err := dhs.init()
+		if err != nil {
+			dhs = nil
+			return nil
+		}
 	}
 
 	return dhs
 }
 
-func (d *defaultExplorerServer) init() {
+func (d *defaultExplorerServer) init() error {
+	var err error
+	d.homePath, err = utils.GetOrSetHomePath()
+	if err != nil {
+		return err
+	}
 	host := d.config.GetString("ossicones_explorer_server_host", defaultHost)
 	port := d.config.GetInt("ossicones_explorer_server_port", defaultPort)
 	d.address = host + ":" + strconv.Itoa(port)
@@ -67,6 +75,8 @@ func (d *defaultExplorerServer) init() {
 
 	d.handler.HandleFunc("/", d.home)
 	d.handler.HandleFunc("/add", d.add)
+
+	return nil
 }
 
 func (d *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {

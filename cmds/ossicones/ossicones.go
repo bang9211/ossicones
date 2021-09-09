@@ -20,15 +20,9 @@ func main() {
 		log.Fatal("The process is already running")
 	}
 
-	homePath, err := utils.GetOrSetHomePath()
-	if err != nil {
-		fmt.Printf("Failed to GetOrSetHomePath")
-		log.Fatal(err)
-	}
-
 	// Dependency Injection using Wire
-	// modules.InitModules(homePath)
-	modules.InjectDefaultSet(homePath)
+	// modules.InitModules()
+	modules.InjectDefaultSet()
 	defer modules.Close()
 
 	quit := make(chan os.Signal, 1)

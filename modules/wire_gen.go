@@ -32,14 +32,14 @@ func InjectOssiconesBlockchain(config2 config.Config) (blockchain.Blockchain, er
 }
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
-func InjectDefaultExplorerServer(homePath string, config2 config.Config, blockchain2 blockchain.Blockchain) (explorerserver.ExplorerServer, error) {
-	explorerServer := defaultexplorerserver.GetOrCreate(config2, homePath, blockchain2)
+func InjectDefaultExplorerServer(config2 config.Config, blockchain2 blockchain.Blockchain) (explorerserver.ExplorerServer, error) {
+	explorerServer := defaultexplorerserver.GetOrCreate(config2, blockchain2)
 	return explorerServer, nil
 }
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
-func InjectDefaultRESTAPIServer(homePath string, config2 config.Config, blockchain2 blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
-	restapiServer := defaultrestapiserver.GetOrCreate(config2, homePath, blockchain2)
+func InjectDefaultRESTAPIServer(config2 config.Config, blockchain2 blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
+	restapiServer := defaultrestapiserver.GetOrCreate(config2, blockchain2)
 	return restapiServer, nil
 }
 

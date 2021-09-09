@@ -87,3 +87,16 @@ func IsContain(key string, list []string) bool {
 	}
 	return false
 }
+
+func RemoveElement(slice []string, s string) []string {
+	index := -1
+	for i, k := range slice {
+		if k == s {
+			index = i
+		}
+	}
+	if index == -1 {
+		return slice
+	}
+	return append(slice[:index], slice[index+1:]...)
+}

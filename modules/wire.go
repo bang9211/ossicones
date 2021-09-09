@@ -40,14 +40,20 @@ var injection_list = map[string]interface{}{
 //
 // Inject functions can have several dependency parameters
 // and should have two returns(interface, error).
+// Only structure type is allowed, non-structure(int, string, ...) is not allowed for injection.
 //
 // Function Form :
 //
+// - func Inject{Implement}() {Interface} {}
 // - func Inject{Implement}() ({Interface}, error) {}
+// - func Inject{Implement}({Interface}) {Interface} {}
+// - func Inject{Implement}({Interface}) ({Interface}, error) {}
 //
 // Examples :
 //
+// - func InjectViperConfig() config.Config{}
 // - func InjectViperConfig() (config.Config, error){}
+// - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain{}
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error){}
 //
 
@@ -65,7 +71,6 @@ func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, err
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
 func InjectDefaultExplorerServer(
-	homePath string,
 	config config.Config,
 	blockchain blockchain.Blockchain,
 ) (explorerserver.ExplorerServer, error) {
@@ -75,7 +80,6 @@ func InjectDefaultExplorerServer(
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
 func InjectDefaultRESTAPIServer(
-	homePath string,
 	config config.Config,
 	blockchain blockchain.Blockchain,
 ) (restapiserver.RESTAPIServer, error) {

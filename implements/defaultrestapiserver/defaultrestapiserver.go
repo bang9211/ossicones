@@ -68,24 +68,31 @@ type defaultRESTAPIServer struct {
 // Otherwise, it creates and returns the object.
 func GetOrCreate(
 	config config.Config,
-	homePath string,
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
 	if drs == nil {
 		once.Do(func() {
 			drs = &defaultRESTAPIServer{
 				config:     config,
 				handler:    mux.NewRouter(),
-				homePath:   homePath,
 				blockchain: blocchain,
 			}
-			drs.init()
 		})
+		err := drs.init()
+		if err != nil {
+			drs = nil
+			return nil
+		}
 	}
 
 	return drs
 }
 
-func (d *defaultRESTAPIServer) init() {
+func (d *defaultRESTAPIServer) init() error {
+	var err error
+	d.homePath, err = utils.GetOrSetHomePath()
+	if err != nil {
+		return err
+	}
 	host := d.config.GetString("ossicones_rest_api_server_host", defaultHost)
 	port := d.config.GetInt("ossicones_rest_api_server_port", defaultPort)
 	d.address = host + ":" + strconv.Itoa(port)
@@ -94,6 +101,8 @@ func (d *defaultRESTAPIServer) init() {
 	d.handler.HandleFunc("/", d.documentation).Methods("GET")
 	d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
 	d.handler.HandleFunc("/blocks/{height:[0-9]+}", d.block).Methods("GET")
+
+	return nil
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {

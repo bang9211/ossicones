@@ -10,6 +10,7 @@ import (
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
+	"github.com/bang9211/ossicones/utils"
 )
 
 type closable interface {
@@ -31,7 +32,7 @@ var defaultActivatingModules = [...]string{ //fixed array
 // - blockchain.Blockchain
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
-func InjectDefaultSet(homePath string) (
+func InjectDefaultSet() (
 	config.Config,
 	blockchain.Blockchain,
 	explorerserver.ExplorerServer,
@@ -42,95 +43,115 @@ func InjectDefaultSet(homePath string) (
 
 	cfg := viperconfig.NewViperConfig()
 	activatingModules := readActivatingModules(cfg)
+	NotActivatedList := make([]string, len(activatingModules))
+	copy(NotActivatedList, activatingModules)
 
-	for _, activatingModule := range activatingModules {
-		//get function type
-		methodType := reflect.ValueOf(injection_list[activatingModule]).Type()
-		fmt.Println(methodType)
+	tryCount := 0
+	for len(NotActivatedList) > 0 && tryCount < len(NotActivatedList)*len(NotActivatedList) {
+		for _, moduleName := range NotActivatedList {
+			// get function type
+			method := reflect.ValueOf(injection_list[moduleName])
+			methodType := method.Type()
 
-		//check dependencies(function params)
-		if methodType.NumIn() == 0 {
-			//call
-			instance := reflect.ValueOf(injection_list[activatingModule]).Call(nil)
-			if len(instance) == 2 { // return (instance, error)
-				if !instance[1].CanInterface() {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] failed to cast error(%s) to interface",
-						activatingModule, instance[1],
-					)
-				}
-				err := instance[1].Interface()
+			dependencies, satisfied := getNecessaryDependencies(methodType)
+			if satisfied {
+				returnVal := method.Call(dependencies)
+				closableModule, err := checkInjectionResult(returnVal)
 				if err != nil {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] failed to inject : %s",
-						activatingModule, err,
-					)
+					return nil, nil, nil, nil, err
 				}
-
-				if !instance[0].CanInterface() {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] failed to cast instance(%s) to interface",
-						activatingModule, instance[0],
-					)
-				}
-				closableModule, ok := instance[0].Interface().(closable)
-				if !ok {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] failed to cast instance(%s) to closable",
-						activatingModule, instance[0],
-					)
-				}
-				instance_list[activatingModule] = closableModule
-			} else if len(instance) == 1 { // return (instance)
-				if !instance[0].CanInterface() {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] instance(%s) can't be interface",
-						activatingModule, instance[0],
-					)
-				}
-				closableModule, ok := instance[0].Interface().(closable)
-				if !ok {
-					return nil, nil, nil, nil, fmt.Errorf(
-						"[%s] failed to cast instance(%s) to closable",
-						activatingModule, instance[0],
-					)
-				}
-				instance_list[activatingModule] = closableModule
-			} else {
-				return nil, nil, nil, nil, fmt.Errorf(
-					"[%s] unsupported format of inject function, len(returns) : %d",
-					activatingModule, len(instance),
-				)
+				instance_list[moduleName] = closableModule
+				NotActivatedList = utils.RemoveElement(NotActivatedList, moduleName)
 			}
-			// instance_list[activatingModule] = .
-		} else {
-			//store
-
 		}
+		tryCount++
 	}
 
-	bc, err := InjectOssiconesBlockchain(cfg)
-	if err != nil {
-		log.Fatal(err)
+	bc, ok := instance_list["ossiconesblockchain"].(blockchain.Blockchain)
+	if !ok {
+		return nil, nil, nil, nil, fmt.Errorf("failed to get ossiconesblockchain")
 	}
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
 	// bc.PrintBlock()
 
-	hs, err := InjectDefaultExplorerServer(homePath, cfg, bc)
-	if err != nil {
-		log.Fatal(err)
+	hs, ok := instance_list["defaultexplorerserver"].(explorerserver.ExplorerServer)
+	if !ok {
+		return nil, nil, nil, nil, fmt.Errorf("failed to get defaultexplorerserver")
 	}
 	hs.Serve()
 
-	as, err := InjectDefaultRESTAPIServer(homePath, cfg, bc)
-	if err != nil {
-		log.Fatal(err)
+	as, ok := instance_list["defaultrestapiserver"].(restapiserver.RESTAPIServer)
+	if !ok {
+		return nil, nil, nil, nil, fmt.Errorf("failed to get defaultrestapiserver")
 	}
 	as.Serve()
 
 	return cfg, bc, hs, as, nil
+}
+
+func getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
+	dependencies := []reflect.Value{}
+	for i := 0; i < methodType.NumIn(); i++ {
+		dependency := methodType.In(i)
+		find := false
+		for _, instance := range instance_list {
+			instanceType := reflect.TypeOf(instance)
+			if instanceType.Name() == dependency.Name() {
+				dependencies = append(dependencies, reflect.ValueOf(instance))
+				find = true
+				break
+			}
+		}
+		if !find {
+			return nil, false
+		}
+	}
+	return dependencies, true
+}
+
+func checkInjectionResult(returnVal []reflect.Value) (closable, error) {
+
+	if len(returnVal) != 1 && len(returnVal) != 2 {
+		return nil, fmt.Errorf(
+			"invalid inject function format len(return) : %d", len(returnVal))
+	}
+	var closableModule closable
+	var ok bool
+	if len(returnVal) == 1 { // return (instance)
+		if !returnVal[0].CanInterface() {
+			return nil, fmt.Errorf(
+				"returnVal(%s) can't be interface",
+				returnVal[0],
+			)
+		}
+		closableModule, ok = returnVal[0].Interface().(closable)
+		if !ok {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to closable", returnVal[0])
+		}
+	} else { // return (instance, error)
+		if !returnVal[1].CanInterface() {
+			return nil, fmt.Errorf(
+				"failed to cast error(%s) to interface", returnVal[1])
+		}
+		err := returnVal[1].Interface()
+		if err != nil {
+			return nil, fmt.Errorf(
+				"failed to inject : %s", err)
+		}
+		if !returnVal[0].CanInterface() {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to interface", returnVal[0])
+		}
+		closableModule, ok = returnVal[0].Interface().(closable)
+		if !ok {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to closable", returnVal[0])
+		}
+	}
+	return closableModule, nil
 }
 
 func readActivatingModules(config config.Config) []string {
@@ -141,7 +162,7 @@ func readActivatingModules(config config.Config) []string {
 
 	activatingModules := config.GetStringSlice(
 		"ossicones_activating_modules",
-		defaultActivatingModules[:], //array to slice
+		defaultActivatingModules[:], // array to slice
 	)
 
 	return activatingModules
@@ -165,13 +186,13 @@ func InitModules(homePath string) {
 	bc.AddBlock("Thrid Block")
 	// bc.PrintBlock()
 
-	hs, err := InjectDefaultExplorerServer(homePath, config, bc)
+	hs, err := InjectDefaultExplorerServer(config, bc)
 	if err != nil {
 		log.Fatal(err)
 	}
 	hs.Serve()
 
-	as, err := InjectDefaultRESTAPIServer(homePath, config, bc)
+	as, err := InjectDefaultRESTAPIServer(config, bc)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -181,6 +202,6 @@ func InitModules(homePath string) {
 
 // Close closes all modules gracefully.
 func Close() {
-	//todo
+	// todo
 	fmt.Printf("Closed Modules")
 }
