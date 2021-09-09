@@ -9,7 +9,7 @@ import (
 const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 
 func initTest() (config.Config, blockchain.Blockchain, error) {
-	cfg, err := modules.InitConfig()
+	cfg, err := modules.InjectViperConfig()
 	if err != nil {
 		return nil, nil, err
 	}
