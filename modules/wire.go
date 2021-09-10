@@ -51,10 +51,10 @@ var injection_list = map[string]interface{}{
 //
 // Examples :
 //
-// - func InjectViperConfig() config.Config{}
-// - func InjectViperConfig() (config.Config, error){}
-// - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain{}
-// - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error){}
+// - func InjectViperConfig() config.Config {}
+// - func InjectViperConfig() (config.Config, error) {}
+// - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain {}
+// - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //
 
 // InjectViperConfig injects dependencies and inits of Config.

@@ -13,11 +13,11 @@ import (
 	"github.com/bang9211/ossicones/utils"
 )
 
-type closable interface {
+type modulable interface {
 	Close() error
 }
 
-var instance_list = map[string]closable{}
+var instance_list = map[string]modulable{}
 
 var defaultActivatingModules = [...]string{ //fixed array
 	"viperconfig",
@@ -50,18 +50,17 @@ func InjectDefaultSet() (
 	tryCount := 0
 	for len(NotActivatedList) > 0 && tryCount < len(NotActivatedList)*len(NotActivatedList) {
 		for _, moduleName := range NotActivatedList {
-			// get function type
 			method := reflect.ValueOf(injection_list[moduleName])
 			methodType := method.Type()
 
 			dependencies, satisfied := getNecessaryDependencies(methodType)
 			if satisfied {
 				returnVal := method.Call(dependencies)
-				closableModule, err := checkInjectionResult(returnVal)
+				modulableModule, err := checkInjectionResult(returnVal)
 				if err != nil {
 					return nil, nil, nil, nil, err
 				}
-				instance_list[moduleName] = closableModule
+				instance_list[moduleName] = modulableModule
 				activatedList = append(activatedList, moduleName)
 			}
 		}
@@ -101,17 +100,9 @@ func getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
 		dependency := methodType.In(i)
 		find := false
 		for _, instance := range instance_list {
-			// instanceType := reflect.ValueOf(instance).Type()
-			// fmt.Println(instanceType.Name())
-			// fmt.Println(dependency.Name())
-			// if instanceType.Name() == dependency.Name() {
-			// 	dependencies = append(dependencies, reflect.ValueOf(instance))
-			// 	find = true
-			// 	break
-			// }
 			instanceValue := reflect.ValueOf(instance)
 			if instanceValue.CanConvert(dependency) {
-				dependencies = append(dependencies, reflect.ValueOf(instance))
+				dependencies = append(dependencies, instanceValue)
 				find = true
 				break
 			}
@@ -123,13 +114,13 @@ func getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
 	return dependencies, true
 }
 
-func checkInjectionResult(returnVal []reflect.Value) (closable, error) {
+func checkInjectionResult(returnVal []reflect.Value) (modulable, error) {
 
 	if len(returnVal) != 1 && len(returnVal) != 2 {
 		return nil, fmt.Errorf(
 			"invalid inject function format len(return) : %d", len(returnVal))
 	}
-	var closableModule closable
+	var modulableModule modulable
 	var ok bool
 	if len(returnVal) == 1 { // return (instance)
 		if !returnVal[0].CanInterface() {
@@ -138,10 +129,10 @@ func checkInjectionResult(returnVal []reflect.Value) (closable, error) {
 				returnVal[0],
 			)
 		}
-		closableModule, ok = returnVal[0].Interface().(closable)
+		modulableModule, ok = returnVal[0].Interface().(modulable)
 		if !ok {
 			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to closable", returnVal[0])
+				"failed to cast returnVal(%s) to modulable", returnVal[0])
 		}
 	} else { // return (instance, error)
 		if !returnVal[1].CanInterface() {
@@ -157,13 +148,13 @@ func checkInjectionResult(returnVal []reflect.Value) (closable, error) {
 			return nil, fmt.Errorf(
 				"failed to cast returnVal(%s) to interface", returnVal[0])
 		}
-		closableModule, ok = returnVal[0].Interface().(closable)
+		modulableModule, ok = returnVal[0].Interface().(modulable)
 		if !ok {
 			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to closable", returnVal[0])
+				"failed to cast returnVal(%s) to modulable", returnVal[0])
 		}
 	}
-	return closableModule, nil
+	return modulableModule, nil
 }
 
 func readActivatingModules(config config.Config) []string {
