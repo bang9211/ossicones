@@ -2,7 +2,7 @@ title = "OSSICONES CONFIGURATION"
 
 # [MODULES]
 # - OSSICONES_ACTIVATING_MODULES : 
-#   {comma/space seperated, case-insensitive} list of module's name(in /wire/modules.go)
+#   {case-insensitive} list of module's name(in /wire/modules.go)
 ossicones_activating_modules=["ossiconesblockchain", "viperconfig", "defaultexplorerserver", "defaultrestapiserver"]
 
 # [COMMON]

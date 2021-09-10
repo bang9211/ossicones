@@ -11,6 +11,7 @@ import (
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/bang9211/ossicones/utils"
+	"github.com/bang9211/ossicones/wirejacket"
 )
 
 type modulable interface {
@@ -32,14 +33,11 @@ var defaultActivatingModules = [...]string{ //fixed array
 // - blockchain.Blockchain
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
-func InjectDefaultSet() (
-	config.Config,
-	blockchain.Blockchain,
-	explorerserver.ExplorerServer,
-	restapiserver.RESTAPIServer,
-	error,
-) {
+func Inject() error {
 	fmt.Println("Init Modules")
+
+	wj := wirejacket.New("modules")
+	wj.SetProvider(injection_list)
 
 	cfg := viperconfig.NewViperConfig()
 	activatingModules := readActivatingModules(cfg)
@@ -58,7 +56,7 @@ func InjectDefaultSet() (
 				returnVal := method.Call(dependencies)
 				modulableModule, err := checkInjectionResult(returnVal)
 				if err != nil {
-					return nil, nil, nil, nil, err
+					return err
 				}
 				instance_list[moduleName] = modulableModule
 				activatedList = append(activatedList, moduleName)
@@ -70,28 +68,22 @@ func InjectDefaultSet() (
 		tryCount++
 	}
 
-	bc, ok := instance_list["ossiconesblockchain"].(blockchain.Blockchain)
+	_, ok := instance_list["ossiconesblockchain"].(blockchain.Blockchain)
 	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("failed to get ossiconesblockchain")
+		return fmt.Errorf("failed to get ossiconesblockchain")
 	}
-	bc.AddBlock("First Block")
-	bc.AddBlock("Second Block")
-	bc.AddBlock("Thrid Block")
-	// bc.PrintBlock()
 
-	hs, ok := instance_list["defaultexplorerserver"].(explorerserver.ExplorerServer)
+	_, ok = instance_list["defaultexplorerserver"].(explorerserver.ExplorerServer)
 	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("failed to get defaultexplorerserver")
+		return fmt.Errorf("failed to get defaultexplorerserver")
 	}
-	hs.Serve()
 
-	as, ok := instance_list["defaultrestapiserver"].(restapiserver.RESTAPIServer)
+	_, ok = instance_list["defaultrestapiserver"].(restapiserver.RESTAPIServer)
 	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("failed to get defaultrestapiserver")
+		return fmt.Errorf("failed to get defaultrestapiserver")
 	}
-	as.Serve()
 
-	return cfg, bc, hs, as, nil
+	return nil
 }
 
 func getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
@@ -158,10 +150,6 @@ func checkInjectionResult(returnVal []reflect.Value) (modulable, error) {
 }
 
 func readActivatingModules(config config.Config) []string {
-	err := config.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	activatingModules := config.GetStringSlice(
 		"ossicones_activating_modules",

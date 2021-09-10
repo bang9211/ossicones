@@ -1,4 +1,4 @@
-package viperconfig
+package wirejacket
 
 import (
 	"flag"
@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/utils"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -22,7 +21,7 @@ type ViperConfig struct {
 }
 
 // NewViperConfig returns new ViperConfig.
-func NewViperConfig() config.Config {
+func NewViperConfig() Config {
 	vc := ViperConfig{viper: viper.New(), flag: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 	vc.init()
 	return &vc

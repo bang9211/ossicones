@@ -76,6 +76,8 @@ func (d *defaultExplorerServer) init() error {
 	d.handler.HandleFunc("/", d.home)
 	d.handler.HandleFunc("/add", d.add)
 
+	d.Serve()
+
 	return nil
 }
 

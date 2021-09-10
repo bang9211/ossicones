@@ -22,7 +22,7 @@ func main() {
 
 	// Dependency Injection using Wire
 	// modules.InitModules()
-	modules.InjectDefaultSet()
+	modules.Inject()
 	defer modules.Close()
 
 	quit := make(chan os.Signal, 1)

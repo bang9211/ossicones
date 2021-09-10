@@ -102,6 +102,8 @@ func (d *defaultRESTAPIServer) init() error {
 	d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
 	d.handler.HandleFunc("/blocks/{height:[0-9]+}", d.block).Methods("GET")
 
+	d.Serve()
+
 	return nil
 }
 
