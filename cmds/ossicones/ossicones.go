@@ -22,7 +22,10 @@ func main() {
 
 	// Dependency Injection using Wire
 	// modules.InitModules()
-	modules.Inject()
+	err = modules.Inject()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer modules.Close()
 
 	quit := make(chan os.Signal, 1)
