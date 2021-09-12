@@ -10,10 +10,6 @@ import (
 	"github.com/bang9211/ossicones/wirejacket"
 )
 
-type modulable interface {
-	Close() error
-}
-
 // wire-jacket approach
 //
 // InjectDefaultSet injects default dependency set of Blockchain.
@@ -23,9 +19,7 @@ type modulable interface {
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
 func Inject() error {
-	fmt.Println("Init Modules")
-
-	wj, err := wirejacket.New(injection_list)
+	wj, err := wirejacket.NewWithInjectors(injectors)
 	if err != nil {
 		return err
 	}

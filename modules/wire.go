@@ -18,17 +18,17 @@ import (
 //
 // Dependency Injection List
 //
-// injection_list stores A(implement) with B(injector) using map.
-// For wiring name of implment using in config with injector function.
+// injectors stores implement_name(key) with injector_func(value) using map.
+// For wiring, name of implement using in config with injector function.
 //
 // Examples :
 //
-//	var injection_list = map[string]interface{}{
+//	var injectors = map[string]interface{}{
 // 		"viperconfig": 			InjectViperConfig,
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
-var injection_list = map[string]interface{}{
+var injectors = map[string]interface{}{
 	"viperconfig":           InjectViperConfig,
 	"ossiconesblockchain":   InjectOssiconesBlockchain,
 	"defaultexplorerserver": InjectDefaultExplorerServer,

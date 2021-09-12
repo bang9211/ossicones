@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/bang9211/ossicones/utils"
@@ -11,9 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	defaultConfigFile = "ossicones.conf" //.env
-)
+var defaultConfigFile = filepath.Base(os.Args[0]) //.env
 
 type ViperConfig struct {
 	viper *viper.Viper
