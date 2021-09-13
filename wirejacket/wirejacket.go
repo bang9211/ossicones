@@ -8,12 +8,12 @@ import (
 	"github.com/bang9211/ossicones/utils"
 )
 
-// all the module should have Close()
+// All the module should have Close().
 type Module interface {
 	Close() error
 }
 
-// WireJacket
+// WireJacket struct.
 type WireJacket struct {
 	config                Config
 	injectors             map[string]interface{}
@@ -21,7 +21,7 @@ type WireJacket struct {
 	activatingModuleNames []string
 }
 
-// New creates empty WireJacket
+// New creates empty WireJacket.
 func New() (*WireJacket, error) {
 	wj := &WireJacket{
 		config:    NewViperConfig(),
@@ -32,7 +32,7 @@ func New() (*WireJacket, error) {
 	return wj, nil
 }
 
-// NewWithInjectors creates WireJacket with injectors
+// NewWithInjectors creates WireJacket with injectors.
 func NewWithInjectors(
 	injectors map[string]interface{},
 	eagerInjectors map[string]interface{}) (*WireJacket, error) {
@@ -76,6 +76,26 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 	wj.modules[moduleName] = module
 
 	return nil
+}
+
+func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
+	dependencies := []reflect.Value{}
+	for i := 0; i < methodType.NumIn(); i++ {
+		dependency := methodType.In(i)
+		find := false
+		for _, module := range wj.modules {
+			moduleValue := reflect.ValueOf(module)
+			if moduleValue.CanConvert(dependency) {
+				dependencies = append(dependencies, moduleValue)
+				find = true
+				break
+			}
+		}
+		if !find {
+			return nil, false
+		}
+	}
+	return dependencies, true
 }
 
 func (wj *WireJacket) loadDependencies(moduleName string, methodType reflect.Type) ([]reflect.Value, error) {
@@ -140,6 +160,49 @@ func (wj *WireJacket) findModule(dependencyType reflect.Type) Module {
 	return nil
 }
 
+func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, error) {
+
+	if len(returnVal) != 1 && len(returnVal) != 2 {
+		return nil, fmt.Errorf(
+			"invalid inject function format len(return) : %d", len(returnVal))
+	}
+	var module Module
+	var ok bool
+	if len(returnVal) == 1 { // return (module)
+		if !returnVal[0].CanInterface() {
+			return nil, fmt.Errorf(
+				"returnVal(%s) can't be interface",
+				returnVal[0],
+			)
+		}
+		module, ok = returnVal[0].Interface().(Module)
+		if !ok {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to Module", returnVal[0])
+		}
+	} else { // return (module, error)
+		if !returnVal[1].CanInterface() {
+			return nil, fmt.Errorf(
+				"failed to cast error(%s) to interface", returnVal[1])
+		}
+		err := returnVal[1].Interface()
+		if err != nil {
+			return nil, fmt.Errorf(
+				"failed to inject : %s", err)
+		}
+		if !returnVal[0].CanInterface() {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to interface", returnVal[0])
+		}
+		module, ok = returnVal[0].Interface().(Module)
+		if !ok {
+			return nil, fmt.Errorf(
+				"failed to cast returnVal(%s) to Module", returnVal[0])
+		}
+	}
+	return module, nil
+}
+
 func (wj *WireJacket) loadAllModules() error {
 	NotActivatedList := make([]string, len(wj.activatingModuleNames))
 	copy(NotActivatedList, wj.activatingModuleNames)
@@ -197,27 +260,27 @@ func (wj *WireJacket) loadAllModules() error {
 // 	}
 //
 func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
-
+	// TODO
 }
 
 // SetEagerInjectors
 func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) {
-
+	// TODO
 }
 
 // AddInjector
 func (wj *WireJacket) AddInjector(moduleName string, injector interface{}) {
-
+	// TODO
 }
 
 // AddEagerInjector
 func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) {
-
+	// TODO
 }
 
 // DoWire
 func (wj *WireJacket) DoWire() {
-
+	// TODO
 }
 
 // GetConfig
@@ -225,14 +288,22 @@ func (wj *WireJacket) GetConfig() Config {
 	return wj.config
 }
 
-// GetInstance
-func (wj *WireJacket) GetInstance(moduleName string) interface{} {
+// GetModule
+func (wj *WireJacket) GetModule(moduleName string) interface{} {
 	return wj.modules[moduleName]
 }
 
-// GetInstanceByType
-func (wj *WireJacket) GetInstanceByType(interfaceType interface{}) interface{} {
-	return wj.modules
+// GetModuleByType
+func (wj *WireJacket) GetModuleByType(interfaceType interface{}) interface{} {
+	moduleType := reflect.TypeOf(interfaceType).Elem()
+	for _, module := range wj.modules {
+		moduleValue := reflect.ValueOf(module)
+		if moduleValue.CanConvert(moduleType) {
+			return module
+		}
+	}
+
+	return nil
 }
 
 func readActivatingModules(config Config) []string {
@@ -250,70 +321,8 @@ func readActivatingModules(config Config) []string {
 	return activatingModuleNames
 }
 
-func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
-	dependencies := []reflect.Value{}
-	for i := 0; i < methodType.NumIn(); i++ {
-		dependency := methodType.In(i)
-		find := false
-		for _, instance := range wj.modules {
-			instanceValue := reflect.ValueOf(instance)
-			if instanceValue.CanConvert(dependency) {
-				dependencies = append(dependencies, instanceValue)
-				find = true
-				break
-			}
-		}
-		if !find {
-			return nil, false
-		}
-	}
-	return dependencies, true
-}
-
-func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, error) {
-
-	if len(returnVal) != 1 && len(returnVal) != 2 {
-		return nil, fmt.Errorf(
-			"invalid inject function format len(return) : %d", len(returnVal))
-	}
-	var module Module
-	var ok bool
-	if len(returnVal) == 1 { // return (instance)
-		if !returnVal[0].CanInterface() {
-			return nil, fmt.Errorf(
-				"returnVal(%s) can't be interface",
-				returnVal[0],
-			)
-		}
-		module, ok = returnVal[0].Interface().(Module)
-		if !ok {
-			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to Module", returnVal[0])
-		}
-	} else { // return (instance, error)
-		if !returnVal[1].CanInterface() {
-			return nil, fmt.Errorf(
-				"failed to cast error(%s) to interface", returnVal[1])
-		}
-		err := returnVal[1].Interface()
-		if err != nil {
-			return nil, fmt.Errorf(
-				"failed to inject : %s", err)
-		}
-		if !returnVal[0].CanInterface() {
-			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to interface", returnVal[0])
-		}
-		module, ok = returnVal[0].Interface().(Module)
-		if !ok {
-			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to Module", returnVal[0])
-		}
-	}
-	return module, nil
-}
-
 // Close closes all the modules gracefully
 func (wj *WireJacket) Close() error {
+	// TODO
 	return nil
 }

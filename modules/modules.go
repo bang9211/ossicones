@@ -24,17 +24,17 @@ func Inject() error {
 		return err
 	}
 
-	_, ok := wj.GetInstance("ossiconesblockchain").(blockchain.Blockchain)
+	_, ok := wj.GetModuleByType((*blockchain.Blockchain)(nil)).(blockchain.Blockchain)
 	if !ok {
 		return fmt.Errorf("failed to get ossiconesblockchain")
 	}
 
-	_, ok = wj.GetInstance("defaultexplorerserver").(explorerserver.ExplorerServer)
+	_, ok = wj.GetModuleByType((*explorerserver.ExplorerServer)(nil)).(explorerserver.ExplorerServer)
 	if !ok {
 		return fmt.Errorf("failed to get defaultexplorerserver")
 	}
 
-	_, ok = wj.GetInstance("defaultrestapiserver").(restapiserver.RESTAPIServer)
+	_, ok = wj.GetModuleByType((*restapiserver.RESTAPIServer)(nil)).(restapiserver.RESTAPIServer)
 	if !ok {
 		return fmt.Errorf("failed to get defaultrestapiserver")
 	}
