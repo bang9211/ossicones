@@ -81,11 +81,11 @@ func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error 
 func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
 	dependencies := []reflect.Value{}
 	for i := 0; i < methodType.NumIn(); i++ {
-		dependency := methodType.In(i)
+		dependencyType := methodType.In(i)
 		find := false
 		for _, module := range wj.modules {
 			moduleValue := reflect.ValueOf(module)
-			if moduleValue.CanConvert(dependency) {
+			if moduleValue.CanConvert(dependencyType) {
 				dependencies = append(dependencies, moduleValue)
 				find = true
 				break
@@ -98,45 +98,41 @@ func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value,
 	return dependencies, true
 }
 
-func (wj *WireJacket) loadDependencies(moduleName string, methodType reflect.Type) ([]reflect.Value, error) {
+func (wj *WireJacket) loadDependencies(
+	moduleName string,
+	methodType reflect.Type) ([]reflect.Value, error) {
 	var err error
+	dependencies := []reflect.Value{}
 
 	dependencyTypeList := wj.getParamTypeList(methodType)
 	for _, dependencyType := range dependencyTypeList {
-		module := wj.findModule(dependencyType)
-		if module == nil {
-			// find injector of dependency in injectors (return type check)
-			moduleName, injector := wj.findInjector(dependencyType)
-			if injector == nil {
-				return nil, fmt.Errorf("format string")
-			}
-
-			// loadModule using injector
-			err = wj.loadModule(moduleName, injector)
-			if err != nil {
-				return nil, fmt.Errorf("format string")
-			}
-		} else {
-
+		// find injector of dependency in injectors (return type check)
+		moduleName, injector := wj.findInjector(dependencyType)
+		if injector == nil {
+			return nil, fmt.Errorf("failed to find injector of dependency(%s)", moduleName)
 		}
-	}
 
-	// check all the dependencies are satisfied
-
-	// call injector
-
-	dependencies, satisfied := wj.getDependencies(methodType)
-	if !satisfied {
-		dependencies, err = wj.loadDependencies(moduleName, methodType)
+		// loadModule using injector
+		err = wj.loadModule(moduleName, injector)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to load module of dependency(%s)", moduleName)
 		}
+		dependencies = append(dependencies, reflect.ValueOf(wj.modules[moduleName]))
 	}
 
 	return dependencies, nil
 }
 
 func (wj *WireJacket) findInjector(dependencyType reflect.Type) (string, interface{}) {
+	for moduleName, injector := range wj.injectors {
+		method := reflect.ValueOf(injector)
+		methodType := method.Type()
+		if methodType.NumOut() > 0 &&
+			methodType.Out(0).Name() == dependencyType.Name() &&
+			methodType.Out(0).PkgPath() == dependencyType.PkgPath() {
+			return moduleName, injector
+		}
+	}
 
 	return "", nil
 }
