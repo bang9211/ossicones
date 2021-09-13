@@ -79,7 +79,7 @@ func GetFileExtension(path string) string {
 	return ext
 }
 
-func IsContain(key string, list []string) bool {
+func IsContain(list []string, key string) bool {
 	for _, s := range list {
 		if s == key {
 			return true
@@ -88,10 +88,10 @@ func IsContain(key string, list []string) bool {
 	return false
 }
 
-func RemoveElement(slice []string, s string) []string {
+func RemoveElement(slice []string, key string) []string {
 	index := -1
 	for i, k := range slice {
-		if k == s {
+		if k == key {
 			index = i
 		}
 	}

@@ -19,7 +19,7 @@ import (
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
 func Inject() error {
-	wj, err := wirejacket.NewWithInjectors(injectors)
+	wj, err := wirejacket.NewWithInjectors(injectors, eagerInjectors)
 	if err != nil {
 		return err
 	}

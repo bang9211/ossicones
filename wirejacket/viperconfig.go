@@ -50,7 +50,7 @@ func (vc *ViperConfig) preconfigForRead(configFilePath string) {
 		vc.viper.SetConfigName(utils.GetFileName(configFilePath))
 		vc.viper.SetConfigType("env")
 	} else {
-		supportedType := utils.IsContain(ext, viper.SupportedExts)
+		supportedType := utils.IsContain(viper.SupportedExts, ext)
 		if supportedType {
 			vc.viper.SetConfigFile(configFilePath)
 		} else {

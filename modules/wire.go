@@ -18,7 +18,7 @@ import (
 //
 // Dependency Injection List
 //
-// injectors stores implement_name(key) with injector_func(value) using map.
+// injectors stores module_name(key) with injector_func(value) using map.
 // For wiring, name of implement using in config with injector function.
 //
 // Examples :
@@ -28,9 +28,17 @@ import (
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
+// 	var eagerInjectors = map[string]interface{}{
+// 		"defaultexplorerserver": InjectDefaultExplorerServer,
+// 		"defaultrestapiserver":  InjectDefaultRESTAPIServer,
+// 	}
+//
 var injectors = map[string]interface{}{
-	"viperconfig":           InjectViperConfig,
-	"ossiconesblockchain":   InjectOssiconesBlockchain,
+	"viperconfig":         InjectViperConfig,
+	"ossiconesblockchain": InjectOssiconesBlockchain,
+}
+
+var eagerInjectors = map[string]interface{}{
 	"defaultexplorerserver": InjectDefaultExplorerServer,
 	"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 }

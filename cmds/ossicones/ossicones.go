@@ -22,6 +22,8 @@ func main() {
 
 	// Dependency Injection using Wire
 	// modules.InitModules()
+
+	// Dependency Injector using WireJacket
 	err = modules.Inject()
 	if err != nil {
 		log.Fatal(err)

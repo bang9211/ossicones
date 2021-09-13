@@ -8,57 +8,157 @@ import (
 	"github.com/bang9211/ossicones/utils"
 )
 
-// modulable
-// all the module shoudld have Close()
-type modulable interface {
+// all the module should have Close()
+type Module interface {
 	Close() error
 }
 
 // WireJacket
 type WireJacket struct {
-	injectors map[string]interface{}
-	instances map[string]modulable
-	config    Config
+	config                Config
+	injectors             map[string]interface{}
+	modules               map[string]Module
+	activatingModuleNames []string
 }
 
-// New
+// New creates empty WireJacket
 func New() (*WireJacket, error) {
 	wj := &WireJacket{
-		injectors: map[string]interface{}{},
-		instances: map[string]modulable{},
 		config:    NewViperConfig(),
+		injectors: map[string]interface{}{},
+		modules:   map[string]Module{},
 	}
 
 	return wj, nil
 }
 
-// New creates WireJacket with injectors
-func NewWithInjectors(injectors map[string]interface{}) (*WireJacket, error) {
+// NewWithInjectors creates WireJacket with injectors
+func NewWithInjectors(
+	injectors map[string]interface{},
+	eagerInjectors map[string]interface{}) (*WireJacket, error) {
 	wj := &WireJacket{
 		injectors: injectors,
-		instances: map[string]modulable{},
+		modules:   map[string]Module{},
 		config:    NewViperConfig(),
 	}
+	wj.activatingModuleNames = readActivatingModules(wj.config)
 
-	activatingModules := wj.readActivatingModules(wj.config)
-	NotActivatedList := make([]string, len(activatingModules))
-	copy(NotActivatedList, activatingModules)
+	for moduleName, eagerInjector := range eagerInjectors {
+		if utils.IsContain(wj.activatingModuleNames, moduleName) {
+			err := wj.loadModule(moduleName, eagerInjector)
+			if err != nil {
+				return nil, fmt.Errorf("[%s] %s", moduleName, err)
+			}
+		}
+	}
 
+	return wj, nil
+}
+
+func (wj *WireJacket) loadModule(moduleName string, injector interface{}) error {
+	var err error
+
+	method := reflect.ValueOf(injector)
+	methodType := method.Type()
+	dependencies, satisfied := wj.getDependencies(methodType)
+	if !satisfied {
+		dependencies, err = wj.loadDependencies(moduleName, methodType)
+		if err != nil {
+			return err
+		}
+	}
+
+	returnVal := method.Call(dependencies)
+	module, err := wj.checkInjectionResult(returnVal)
+	if err != nil {
+		return err
+	}
+	wj.modules[moduleName] = module
+
+	return nil
+}
+
+func (wj *WireJacket) loadDependencies(moduleName string, methodType reflect.Type) ([]reflect.Value, error) {
+	var err error
+
+	dependencyTypeList := wj.getParamTypeList(methodType)
+	for _, dependencyType := range dependencyTypeList {
+		module := wj.findModule(dependencyType)
+		if module == nil {
+			// find injector of dependency in injectors (return type check)
+			moduleName, injector := wj.findInjector(dependencyType)
+			if injector == nil {
+				return nil, fmt.Errorf("format string")
+			}
+
+			// loadModule using injector
+			err = wj.loadModule(moduleName, injector)
+			if err != nil {
+				return nil, fmt.Errorf("format string")
+			}
+		} else {
+
+		}
+	}
+
+	// check all the dependencies are satisfied
+
+	// call injector
+
+	dependencies, satisfied := wj.getDependencies(methodType)
+	if !satisfied {
+		dependencies, err = wj.loadDependencies(moduleName, methodType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return dependencies, nil
+}
+
+func (wj *WireJacket) findInjector(dependencyType reflect.Type) (string, interface{}) {
+
+	return "", nil
+}
+
+func (wj *WireJacket) getParamTypeList(methodType reflect.Type) []reflect.Type {
+	typeList := []reflect.Type{}
+	for i := 0; i < methodType.NumIn(); i++ {
+		dependency := methodType.In(i)
+		typeList = append(typeList, dependency)
+	}
+	return typeList
+}
+
+func (wj *WireJacket) findModule(dependencyType reflect.Type) Module {
+	for _, module := range wj.modules {
+		moduleValue := reflect.ValueOf(module)
+		if moduleValue.CanConvert(dependencyType) {
+			return module
+		}
+	}
+	return nil
+}
+
+func (wj *WireJacket) loadAllModules() error {
+	NotActivatedList := make([]string, len(wj.activatingModuleNames))
+	copy(NotActivatedList, wj.activatingModuleNames)
 	activatedList := []string{}
 	tryCount := 0
+
 	for len(NotActivatedList) > 0 && tryCount < len(NotActivatedList)*len(NotActivatedList) {
 		for _, moduleName := range NotActivatedList {
-			method := reflect.ValueOf(injectors[moduleName])
+			method := reflect.ValueOf(wj.injectors[moduleName])
 			methodType := method.Type()
 
-			dependencies, satisfied := wj.getNecessaryDependencies(methodType)
+			dependencies, satisfied := wj.getDependencies(methodType)
 			if satisfied {
 				returnVal := method.Call(dependencies)
-				modulableModule, err := wj.checkInjectionResult(returnVal)
+				module, err := wj.checkInjectionResult(returnVal)
 				if err != nil {
-					return nil, fmt.Errorf("[%s] %s", moduleName, err)
+					return fmt.Errorf("[%s] %s", moduleName, err)
 				}
-				wj.instances[moduleName] = modulableModule
+				wj.modules[moduleName] = module
 				activatedList = append(activatedList, moduleName)
 			}
 		}
@@ -68,14 +168,14 @@ func NewWithInjectors(injectors map[string]interface{}) (*WireJacket, error) {
 		tryCount++
 	}
 
-	return wj, nil
+	return nil
 }
 
 // SetInjectors
 // Wire has two basic concepts: providers and injectors.
-// WireJacket's injectors stores implement_name with injector as a key-value.
+// WireJacket's injectors stores module_name with injector as a key-value.
 // The implment_name can be found in the config file.
-// By default, WireJacket trys to find implement_name in
+// By default, WireJacket trys to find module_name in
 // {process_name}_activating_modules of {process_name}.conf file.
 //
 // Example of ossicones process :
@@ -96,7 +196,22 @@ func NewWithInjectors(injectors map[string]interface{}) (*WireJacket, error) {
 // 		"ossiconesblockchain":	InjectOssiconesBlockchain,
 // 	}
 //
-func (wj *WireJacket) SetInjectors() {
+func (wj *WireJacket) SetInjectors(injectors map[string]interface{}) {
+
+}
+
+// SetEagerInjectors
+func (wj *WireJacket) SetEagerInjectors(injectors map[string]interface{}) {
+
+}
+
+// AddInjector
+func (wj *WireJacket) AddInjector(moduleName string, injector interface{}) {
+
+}
+
+// AddEagerInjector
+func (wj *WireJacket) AddEagerInjector(moduleName string, injector interface{}) {
 
 }
 
@@ -105,39 +220,42 @@ func (wj *WireJacket) DoWire() {
 
 }
 
+// GetConfig
 func (wj *WireJacket) GetConfig() Config {
 	return wj.config
 }
 
+// GetInstance
 func (wj *WireJacket) GetInstance(moduleName string) interface{} {
-	return wj.instances[moduleName]
+	return wj.modules[moduleName]
 }
 
+// GetInstanceByType
 func (wj *WireJacket) GetInstanceByType(interfaceType interface{}) interface{} {
-	return wj.instances
+	return wj.modules
 }
 
-func (wj *WireJacket) readActivatingModules(config Config) []string {
+func readActivatingModules(config Config) []string {
 	err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	activatingModules := config.GetStringSlice(
+	activatingModuleNames := config.GetStringSlice(
 		"ossicones_activating_modules",
 		[]string{},
 		// defaultActivatingModules[:], // array to slice
 	)
 
-	return activatingModules
+	return activatingModuleNames
 }
 
-func (wj *WireJacket) getNecessaryDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
+func (wj *WireJacket) getDependencies(methodType reflect.Type) ([]reflect.Value, bool) {
 	dependencies := []reflect.Value{}
 	for i := 0; i < methodType.NumIn(); i++ {
 		dependency := methodType.In(i)
 		find := false
-		for _, instance := range wj.instances {
+		for _, instance := range wj.modules {
 			instanceValue := reflect.ValueOf(instance)
 			if instanceValue.CanConvert(dependency) {
 				dependencies = append(dependencies, instanceValue)
@@ -152,13 +270,13 @@ func (wj *WireJacket) getNecessaryDependencies(methodType reflect.Type) ([]refle
 	return dependencies, true
 }
 
-func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (modulable, error) {
+func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (Module, error) {
 
 	if len(returnVal) != 1 && len(returnVal) != 2 {
 		return nil, fmt.Errorf(
 			"invalid inject function format len(return) : %d", len(returnVal))
 	}
-	var modulableModule modulable
+	var module Module
 	var ok bool
 	if len(returnVal) == 1 { // return (instance)
 		if !returnVal[0].CanInterface() {
@@ -167,10 +285,10 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (modulable
 				returnVal[0],
 			)
 		}
-		modulableModule, ok = returnVal[0].Interface().(modulable)
+		module, ok = returnVal[0].Interface().(Module)
 		if !ok {
 			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to modulable", returnVal[0])
+				"failed to cast returnVal(%s) to Module", returnVal[0])
 		}
 	} else { // return (instance, error)
 		if !returnVal[1].CanInterface() {
@@ -186,11 +304,16 @@ func (wj *WireJacket) checkInjectionResult(returnVal []reflect.Value) (modulable
 			return nil, fmt.Errorf(
 				"failed to cast returnVal(%s) to interface", returnVal[0])
 		}
-		modulableModule, ok = returnVal[0].Interface().(modulable)
+		module, ok = returnVal[0].Interface().(Module)
 		if !ok {
 			return nil, fmt.Errorf(
-				"failed to cast returnVal(%s) to modulable", returnVal[0])
+				"failed to cast returnVal(%s) to Module", returnVal[0])
 		}
 	}
-	return modulableModule, nil
+	return module, nil
+}
+
+// Close closes all the modules gracefully
+func (wj *WireJacket) Close() error {
+	return nil
 }
