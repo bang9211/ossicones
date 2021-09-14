@@ -7,7 +7,7 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
-	"github.com/bang9211/wire-jacket/wirejacket"
+	"github.com/bang9211/wire-jacket"
 )
 
 // wire-jacket approach
