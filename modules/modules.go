@@ -7,7 +7,7 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
-	"github.com/bang9211/ossicones/wirejacket"
+	"github.com/bang9211/wire-jacket/wirejacket"
 )
 
 // wire-jacket approach
@@ -19,9 +19,13 @@ import (
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
 func Inject() error {
+
 	wj, err := wirejacket.NewWithInjectors(injectors, eagerInjectors)
 	if err != nil {
 		return err
+	}
+	if err := wj.DoWire(); err != nil {
+		log.Fatal(err)
 	}
 
 	_, ok := wj.GetModuleByType((*blockchain.Blockchain)(nil)).(blockchain.Blockchain)
