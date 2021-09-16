@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/explorerserver"
-	"github.com/bang9211/ossicones/interfaces/restapiserver"
-	"github.com/bang9211/wire-jacket"
+	wirejacket "github.com/bang9211/wire-jacket"
 )
+
+var wj *wirejacket.WireJacket
 
 // wire-jacket approach
 //
@@ -19,28 +18,24 @@ import (
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
 func Inject() error {
-
-	wj, err := wirejacket.NewWithInjectors(injectors, eagerInjectors)
+	var err error
+	wj, err = wirejacket.NewWithInjectors(injectors, eagerInjectors)
 	if err != nil {
 		return err
 	}
+
+	// wj, err := wirejacket.New()
+	// if err != nil {
+	// 	return err
+	// }
+
+	// wj.AddInjector("viperconfig", InjectViperConfig)
+	// wj.AddInjector("ossiconesblockchain", InjectOssiconesBlockchain)
+	// wj.AddEagerInjector("defaultexplorerserver", InjectDefaultExplorerServer)
+	// wj.AddEagerInjector("defaultrestapiserver", InjectDefaultRESTAPIServer)
+
 	if err := wj.DoWire(); err != nil {
 		log.Fatal(err)
-	}
-
-	_, ok := wj.GetModuleByType((*blockchain.Blockchain)(nil)).(blockchain.Blockchain)
-	if !ok {
-		return fmt.Errorf("failed to get ossiconesblockchain")
-	}
-
-	_, ok = wj.GetModuleByType((*explorerserver.ExplorerServer)(nil)).(explorerserver.ExplorerServer)
-	if !ok {
-		return fmt.Errorf("failed to get defaultexplorerserver")
-	}
-
-	_, ok = wj.GetModuleByType((*restapiserver.RESTAPIServer)(nil)).(restapiserver.RESTAPIServer)
-	if !ok {
-		return fmt.Errorf("failed to get defaultrestapiserver")
 	}
 
 	return nil
@@ -68,6 +63,7 @@ func InitModules(homePath string) {
 
 // Close closes all modules gracefully.
 func Close() {
-	// todo
-	fmt.Printf("Closed Modules")
+	if err := wj.Close(); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -66,7 +66,7 @@ func TestCalculateHash(t *testing.T) {
 				Height:   len(blocks) + 1,
 			}
 			newBlock.CalculateHash()
-			Equal(t, newBlock.Hash, test.expected)
+			Equal(t, test.expected, newBlock.Hash)
 
 			bc.AddBlock(test.input)
 			blocks = bc.AllBlocks()
@@ -107,7 +107,7 @@ func TestGetData(t *testing.T) {
 				"It must implements of interface blockchain.Block")
 			block, ok := blocks[len(blocks)-1].(blockchain.Block)
 			True(t, ok)
-			Equal(t, block.GetData(), test.expected)
+			Equal(t, test.expected, block.GetData())
 		})
 	}
 }

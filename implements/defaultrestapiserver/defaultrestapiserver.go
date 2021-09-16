@@ -20,7 +20,7 @@ const (
 	defaultPort = 4000
 )
 
-var drs *defaultRESTAPIServer
+var drs *DefaultRESTAPIServer
 var once sync.Once
 
 type defaultURL struct {
@@ -56,7 +56,7 @@ type ErrorResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
-type defaultRESTAPIServer struct {
+type DefaultRESTAPIServer struct {
 	config     config.Config
 	handler    *mux.Router
 	blockchain blockchain.Blockchain
@@ -71,7 +71,7 @@ func GetOrCreate(
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
 	if drs == nil {
 		once.Do(func() {
-			drs = &defaultRESTAPIServer{
+			drs = &DefaultRESTAPIServer{
 				config:     config,
 				handler:    mux.NewRouter(),
 				blockchain: blocchain,
@@ -87,7 +87,7 @@ func GetOrCreate(
 	return drs
 }
 
-func (d *defaultRESTAPIServer) init() error {
+func (d *DefaultRESTAPIServer) init() error {
 	var err error
 	d.homePath, err = utils.GetOrSetHomePath()
 	if err != nil {
@@ -114,7 +114,7 @@ func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (d *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
+func (d *DefaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []urlDescription{
 		{
 			URL:         defaultURL{d.address, "/"},
@@ -136,7 +136,7 @@ func (d *defaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Req
 	json.NewEncoder(rw).Encode(data)
 }
 
-func (d *defaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
+func (d *DefaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		rw.Header().Add("Content-Type", "application/json")
@@ -151,7 +151,7 @@ func (d *defaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
+func (d *DefaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["height"])
 	utils.HandleError(err)
@@ -164,14 +164,14 @@ func (d *defaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *defaultRESTAPIServer) Serve() {
+func (d *DefaultRESTAPIServer) Serve() {
 	go func() {
 		fmt.Printf("Listening REST API Server on %s\n", d.address)
 		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
 }
 
-func (d *defaultRESTAPIServer) Close() error {
+func (d *DefaultRESTAPIServer) Close() error {
 	drs = nil
 	return nil
 }

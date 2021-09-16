@@ -43,8 +43,8 @@ github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kd
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/bang9211/wire-jacket v0.0.0-20210914045346-ec5c1e084a23 h1:e0ttdi00wpUxKMIXqQeEyS3OCj3oX0aXoWBk7SnvAec=
-github.com/bang9211/wire-jacket v0.0.0-20210914045346-ec5c1e084a23/go.mod h1:8aedfLg9xRI5Zr0zI8iXCxtc5E5KTVLHcdoOptlGG8E=
+github.com/bang9211/wire-jacket v0.0.0-20210915002819-a62faabdd342 h1:uwbkHNT5EkzNtaxsCtZ4c8e/gdZU6CW6LvvIKJG3d+w=
+github.com/bang9211/wire-jacket v0.0.0-20210915002819-a62faabdd342/go.mod h1:IttKONdv84VMAbcvuKES1mKzLZ5/6dU62FKGiuVWc3k=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/bketelsen/crypt v0.0.4/go.mod h1:aI6NrJ0pMGgvZKL1iVgXLnfIFJtfV+bKCoqOes/6LfM=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

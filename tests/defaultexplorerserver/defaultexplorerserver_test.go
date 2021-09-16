@@ -1,7 +1,15 @@
-package defaultexplorerserver
+package defaultrestapiserver
 
-import "testing"
+import (
+	"testing"
 
-func TestDefaultExplorerServer(t *testing.T) {
+	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
+	"github.com/bang9211/ossicones/interfaces/explorerserver"
 
+	. "github.com/stretchr/testify/assert"
+)
+
+func TestImplementExplorerServer(t *testing.T) {
+	Implements(t, (*explorerserver.ExplorerServer)(nil), new(defaultexplorerserver.DefaultExplorerServer),
+		"It must implements of interface explorerserver.ExplorerServer")
 }

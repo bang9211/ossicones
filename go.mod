@@ -3,7 +3,7 @@ module github.com/bang9211/ossicones
 go 1.17
 
 require (
-	github.com/bang9211/wire-jacket v0.0.0-20210914045346-ec5c1e084a23
+	github.com/bang9211/wire-jacket v0.0.0-20210915002819-a62faabdd342
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/go-ps v1.0.0

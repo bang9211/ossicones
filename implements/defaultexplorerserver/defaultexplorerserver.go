@@ -20,7 +20,7 @@ const (
 	defaultPort = 3000
 )
 
-var dhs *defaultExplorerServer
+var dhs *DefaultExplorerServer
 var once sync.Once
 var templates *template.Template
 
@@ -29,7 +29,7 @@ type homeData struct {
 	Blocks    []blockchain.Block
 }
 
-type defaultExplorerServer struct {
+type DefaultExplorerServer struct {
 	config     config.Config
 	handler    *http.ServeMux
 	blockchain blockchain.Blockchain
@@ -44,7 +44,7 @@ func GetOrCreate(
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
 	if dhs == nil {
 		once.Do(func() {
-			dhs = &defaultExplorerServer{
+			dhs = &DefaultExplorerServer{
 				config:     config,
 				handler:    http.NewServeMux(),
 				blockchain: blocchain,
@@ -60,7 +60,7 @@ func GetOrCreate(
 	return dhs
 }
 
-func (d *defaultExplorerServer) init() error {
+func (d *DefaultExplorerServer) init() error {
 	var err error
 	d.homePath, err = utils.GetOrSetHomePath()
 	if err != nil {
@@ -81,7 +81,7 @@ func (d *defaultExplorerServer) init() error {
 	return nil
 }
 
-func (d *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
+func (d *DefaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
 	tempBlocks := ossiconesblockchain.GetOrCreate(d.config).AllBlocks()
 	blocks := []blockchain.Block{}
 	for _, block := range tempBlocks {
@@ -92,7 +92,7 @@ func (d *defaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(rw, "home", data)
 }
 
-func (d *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
+func (d *DefaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		templates.ExecuteTemplate(rw, "add", nil)
@@ -104,14 +104,14 @@ func (d *defaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *defaultExplorerServer) Serve() {
+func (d *DefaultExplorerServer) Serve() {
 	go func() {
 		fmt.Printf("Listening Explorer Server on %s\n", d.address)
 		log.Fatal(http.ListenAndServe(d.address, d.handler))
 	}()
 }
 
-func (d *defaultExplorerServer) Close() error {
+func (d *DefaultExplorerServer) Close() error {
 	dhs = nil
 	return nil
 }
