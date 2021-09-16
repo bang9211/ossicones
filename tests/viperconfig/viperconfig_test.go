@@ -100,8 +100,8 @@ func TestLoadDefault(t *testing.T) {
 }
 
 func TestLoadJSON(t *testing.T) {
-	os.Args[1] = "--config"
-	os.Args[2] = "test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -125,8 +125,8 @@ func TestLoadJSON(t *testing.T) {
 }
 
 func TestLoadYAML(t *testing.T) {
-	os.Args[1] = "--config"
-	os.Args[2] = "test.yaml"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "test.yaml")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -150,8 +150,8 @@ func TestLoadYAML(t *testing.T) {
 }
 
 func TestLoadTOML(t *testing.T) {
-	os.Args[1] = "--config"
-	os.Args[2] = "test.toml"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "test.toml")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -187,8 +187,8 @@ func TestGetBool(t *testing.T) {
 		{"Reading no exists value, set to default", "NO_EXIST_KEY", false, false},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "bool_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "bool_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -216,8 +216,8 @@ func TestGetString(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", "Hello, World!", "Hello, World!"},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "string_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "string_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -244,8 +244,8 @@ func TestGetInt(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultIntVal, defaultIntVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "int_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "int_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -272,8 +272,8 @@ func TestGetInt32(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultInt32Val, defaultInt32Val},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "int32_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "int32_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -300,8 +300,8 @@ func TestGetInt64(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultInt64Val, defaultInt64Val},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "int64_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "int64_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -328,8 +328,8 @@ func TestGetUint(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultUintVal, defaultUintVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "uint_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "uint_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -356,8 +356,8 @@ func TestGetUint32(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultUint32Val, defaultUint32Val},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "uint32_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "uint32_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -384,8 +384,8 @@ func TestGetUint64(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultUint64Val, defaultUint64Val},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "uint64_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "uint64_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -408,8 +408,8 @@ func TestGetFloat64(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", 112.233, 112.233},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "float64_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "float64_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -432,8 +432,8 @@ func TestGetTime(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultTimeVal, defaultTimeVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "time_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "time_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -456,8 +456,8 @@ func TestGetDuration(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultDurationVal, defaultDurationVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "duration_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "duration_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -481,8 +481,8 @@ func TestGetIntSlice(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultIntSliceVal, defaultIntSliceVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "intslice_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "intslice_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -506,8 +506,8 @@ func TestGetStringSlice(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultStringSliceVal, defaultStringSliceVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "stringslice_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "stringslice_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -536,8 +536,8 @@ func TestGetStringMap(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultStringMapVal, defaultStringMapVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "stringmap_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "stringmap_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -566,8 +566,8 @@ func TestGetStringMapString(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultStringMapStringVal, defaultStringMapStringVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "stringmapstring_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "stringmapstring_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
@@ -596,8 +596,8 @@ func TestGetStringMapSlice(t *testing.T) {
 		{"Reading no exists value", "NO_EXISTS_KEY", defaultStringMapSliceVal, defaultStringMapSliceVal},
 	}
 
-	os.Args[1] = "--config"
-	os.Args[2] = "stringmapslice_test.json"
+	os.Args = append(os.Args, "--config")
+	os.Args = append(os.Args, "stringmapslice_test.json")
 	cfg, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer NoError(t, closeTest(cfg), "Failed to closeTest()")
