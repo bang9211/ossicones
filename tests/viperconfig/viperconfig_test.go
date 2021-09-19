@@ -12,6 +12,9 @@ import (
 	. "github.com/stretchr/testify/assert"
 )
 
+// this test implement-dependent
+// it succeeded in arm64 environments
+
 var (
 	testBoolVal                   = false
 	defaultBoolVal                = true
@@ -19,15 +22,15 @@ var (
 	defaultStringVal              = "Hello World!"
 	testIntVal            int     = 998877
 	defaultIntVal         int     = 112233
-	testInt32Val          int32   = 2147483647
+	testInt32Val          int32   = math.MaxInt32
 	defaultInt32Val       int32   = 112233
-	testInt64Val          int64   = 9223372036854775807
+	testInt64Val          int64   = math.MaxInt64
 	defaultInt64Val       int64   = 112233
 	testUintVal           uint    = 998877
 	defaultUintVal        uint    = 112233
-	testUint32Val         uint32  = 4294967295
+	testUint32Val         uint32  = math.MaxUint32
 	defaultUint32Val      uint32  = 112233
-	testUint64Val         uint64  = 18446744073709551615
+	testUint64Val         uint64  = math.MaxUint64
 	defaultUint64Val      uint64  = 112233
 	testFloat64Val        float64 = 998.877
 	defaultFloat64Val     float64 = 112.233
@@ -163,7 +166,7 @@ func TestLoadTOML(t *testing.T) {
 	Equal(t, testInt64Val, cfg.GetInt64("test_viper_config_int64_value", defaultInt64Val))
 	Equal(t, testUintVal, cfg.GetUint("test_viper_config_uint_value", defaultUintVal))
 	Equal(t, testUint32Val, cfg.GetUint32("test_viper_config_uint32_value", defaultUint32Val))
-	// Equal(t, testUint64Val, cfg.GetUint64("test_viper_config_uint64_value", defaultUint64Val))
+	Equal(t, testUint64Val, cfg.GetUint64("test_viper_config_uint64_value", defaultUint64Val)) // uint64 default is nil
 	Equal(t, testFloat64Val, cfg.GetFloat64("test_viper_config_float64_value", defaultFloat64Val))
 	Equal(t, testTimeVal, cfg.GetTime("test_viper_config_time_value", defaultTimeVal))
 	Equal(t, testDurationVal, cfg.GetDuration("test_viper_config_duration_value", defaultDurationVal))
