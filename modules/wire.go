@@ -7,7 +7,6 @@ import (
 	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
 	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
-	"github.com/bang9211/ossicones/implements/viperconfig"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
@@ -34,7 +33,6 @@ import (
 // 	}
 //
 var injectors = map[string]interface{}{
-	"viperconfig":         InjectViperConfig,
 	"ossiconesblockchain": InjectOssiconesBlockchain,
 }
 
@@ -59,17 +57,9 @@ var eagerInjectors = map[string]interface{}{
 //
 // Examples :
 //
-// - func InjectViperConfig() config.Config {}
-// - func InjectViperConfig() (config.Config, error) {}
 // - func InjectOssiconesBlockChain(config config.Config) blockchain.Blockchain {}
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //
-
-// InjectViperConfig injects dependencies and inits of Config.
-func InjectViperConfig() (config.Config, error) {
-	wire.Build(viperconfig.NewViperConfig)
-	return nil, nil
-}
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
 func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) {

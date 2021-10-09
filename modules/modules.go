@@ -11,28 +11,16 @@ var wj *wirejacket.WireJacket
 
 // wire-jacket approach
 //
-// InjectDefaultSet injects default dependency set of Blockchain.
+// Inject injects default dependency set of Blockchain.
 // It injects dependencies and inits of all modules.
 // - config.Config
 // - blockchain.Blockchain
 // - explorerserver.ExplorerServer
 // - restapiserver.RESTAPIServer
 func Inject() error {
-	var err error
-	wj, err = wirejacket.NewWithInjectors(injectors, eagerInjectors)
-	if err != nil {
-		return err
-	}
-
-	// wj, err := wirejacket.New()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// wj.AddInjector("viperconfig", InjectViperConfig)
-	// wj.AddInjector("ossiconesblockchain", InjectOssiconesBlockchain)
-	// wj.AddEagerInjector("defaultexplorerserver", InjectDefaultExplorerServer)
-	// wj.AddEagerInjector("defaultrestapiserver", InjectDefaultRESTAPIServer)
+	wj := wirejacket.NewWithServiceName("ossicones").
+		SetInjectors(injectors).
+		SetEagerInjectors(eagerInjectors)
 
 	if err := wj.DoWire(); err != nil {
 		log.Fatal(err)
@@ -45,11 +33,7 @@ func Inject() error {
 func InitModules(homePath string) {
 	fmt.Println("Init Modules")
 
-	config, err := InjectViperConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	config.Load()
+	config := wirejacket.GetConfig()
 
 	bc, err := InjectOssiconesBlockchain(config)
 	if err != nil {
@@ -58,7 +42,7 @@ func InitModules(homePath string) {
 	bc.AddBlock("First Block")
 	bc.AddBlock("Second Block")
 	bc.AddBlock("Thrid Block")
-	// bc.PrintBlock()
+	bc.PrintBlock()
 }
 
 // Close closes all modules gracefully.

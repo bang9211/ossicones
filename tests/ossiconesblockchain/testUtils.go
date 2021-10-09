@@ -4,15 +4,13 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/modules"
+	wirejacket "github.com/bang9211/wire-jacket"
 )
 
 const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 
 func initTest() (config.Config, blockchain.Blockchain, error) {
-	cfg, err := modules.InjectViperConfig()
-	if err != nil {
-		return nil, nil, err
-	}
+	cfg := wirejacket.GetConfig()
 
 	bc, err := modules.InjectOssiconesBlockchain(cfg)
 	if err != nil {
