@@ -33,13 +33,12 @@ import (
 // 	}
 //
 var Injectors = map[string]interface{}{
-	"ossiconesblockchain": InjectOssiconesBlockchain,
-}
-
-var EagerInjectors = map[string]interface{}{
+	"ossiconesblockchain":   InjectOssiconesBlockchain,
 	"defaultexplorerserver": InjectDefaultExplorerServer,
 	"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 }
+
+var EagerInjectors = map[string]interface{}{}
 
 //
 // Dependency wiring should be specify in wire.go.

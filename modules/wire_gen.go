@@ -56,10 +56,9 @@ func InjectDefaultRESTAPIServer(config2 config.Config, blockchain2 blockchain.Bl
 // 	}
 //
 var Injectors = map[string]interface{}{
-	"ossiconesblockchain": InjectOssiconesBlockchain,
-}
-
-var EagerInjectors = map[string]interface{}{
+	"ossiconesblockchain":   InjectOssiconesBlockchain,
 	"defaultexplorerserver": InjectDefaultExplorerServer,
 	"defaultrestapiserver":  InjectDefaultRESTAPIServer,
 }
+
+var EagerInjectors = map[string]interface{}{}
