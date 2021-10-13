@@ -9,7 +9,10 @@ import (
 	"github.com/bang9211/ossicones/interfaces/config"
 )
 
-const defaultGenesisBlockData = "Genesis OssiconesBlock"
+const (
+	genesisBlockDataConfigPath = "ossicones_blockchain_genesis_block_data"
+	defaultGenesisBlockData    = "Genesis OssiconesBlock"
+)
 
 var obc *OssiconesBlockchain
 var once sync.Once
@@ -42,10 +45,10 @@ func GetOrCreate(config config.Config) blockchain.Blockchain {
 	if obc == nil {
 		once.Do(func() {
 			obc = &OssiconesBlockchain{config: config}
-			data := config.GetString(
-				"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
+			genesisData := config.GetString(
+				genesisBlockDataConfigPath,
 				defaultGenesisBlockData)
-			obc.AddBlock(data)
+			obc.AddBlock(genesisData)
 		})
 	}
 	return obc

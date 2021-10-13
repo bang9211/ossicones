@@ -22,6 +22,11 @@ func main() {
 		log.Fatal("The process is already running")
 	}
 
+	_, err = utils.GetOrSetHomePath()
+	if err != nil {
+		log.Print("Failed to GetOrSetHomePath() :", err)
+	}
+
 	wj := wirejacket.NewWithServiceName("ossicones").
 		SetInjectors(modules.Injectors).
 		SetEagerInjectors(modules.EagerInjectors)

@@ -12,12 +12,18 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
-	"github.com/bang9211/ossicones/utils"
 )
 
 const (
-	defaultHost = "0.0.0.0"
-	defaultPort = 3000
+	hostConfigPath         = "ossicones_explorer_server_host"
+	portConfigPath         = "ossicones_explorer_server_port"
+	templatePathConfigPath = "ossicones_explorer_server_template_path"
+	defaultHost            = "0.0.0.0"
+	defaultPort            = 3000
+	defaultTemplatePath    = "templates"
+
+	templatePagePath    = "/pages/*.gohtml"
+	templatePartialPath = "/partials/*.gohtml"
 )
 
 var dhs *DefaultExplorerServer
@@ -30,11 +36,11 @@ type homeData struct {
 }
 
 type DefaultExplorerServer struct {
-	config     config.Config
-	handler    *http.ServeMux
-	blockchain blockchain.Blockchain
-	homePath   string
-	address    string
+	config       config.Config
+	handler      *http.ServeMux
+	blockchain   blockchain.Blockchain
+	templatePath string
+	address      string
 }
 
 // GetOrCreate returns the existing singletone object of DefaultHTTPServer.
@@ -61,17 +67,13 @@ func GetOrCreate(
 }
 
 func (d *DefaultExplorerServer) init() error {
-	var err error
-	d.homePath, err = utils.GetOrSetHomePath()
-	if err != nil {
-		return err
-	}
-	host := d.config.GetString("ossicones_explorer_server_host", defaultHost)
-	port := d.config.GetInt("ossicones_explorer_server_port", defaultPort)
+	host := d.config.GetString(hostConfigPath, defaultHost)
+	port := d.config.GetInt(portConfigPath, defaultPort)
 	d.address = host + ":" + strconv.Itoa(port)
+	d.templatePath = d.config.GetString(templatePathConfigPath, defaultTemplatePath)
 
-	templates = template.Must(template.ParseGlob(d.homePath + "/templates/pages/*.gohtml"))
-	templates = template.Must(templates.ParseGlob(d.homePath + "/templates/partials/*.gohtml"))
+	templates = template.Must(template.ParseGlob(d.templatePath + templatePagePath))
+	templates = template.Must(templates.ParseGlob(d.templatePath + templatePartialPath))
 
 	d.handler.HandleFunc("/", d.home)
 	d.handler.HandleFunc("/add", d.add)

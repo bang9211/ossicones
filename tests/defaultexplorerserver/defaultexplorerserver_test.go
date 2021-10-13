@@ -1,4 +1,4 @@
-package defaultrestapiserver
+package defaultexplorerserver
 
 import (
 	"testing"

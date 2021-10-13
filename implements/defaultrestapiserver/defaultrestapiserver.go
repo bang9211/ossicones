@@ -16,8 +16,10 @@ import (
 )
 
 const (
-	defaultHost = "0.0.0.0"
-	defaultPort = 4000
+	hostConfigPath = "ossicones_rest_api_server_host"
+	portConfigPath = "ossicones_rest_api_server_port"
+	defaultHost    = "0.0.0.0"
+	defaultPort    = 4000
 )
 
 var drs *DefaultRESTAPIServer
@@ -93,8 +95,8 @@ func (d *DefaultRESTAPIServer) init() error {
 	if err != nil {
 		return err
 	}
-	host := d.config.GetString("ossicones_rest_api_server_host", defaultHost)
-	port := d.config.GetInt("ossicones_rest_api_server_port", defaultPort)
+	host := d.config.GetString(hostConfigPath, defaultHost)
+	port := d.config.GetInt(portConfigPath, defaultPort)
 	d.address = host + ":" + strconv.Itoa(port)
 
 	d.handler.Use(jsonContentTypeMiddleware)
