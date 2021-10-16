@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bytes"
+	"encoding/gob"
 	"log"
 	"os"
 	"os/exec"
@@ -99,4 +101,23 @@ func RemoveElement(slice []string, key string) []string {
 		return slice
 	}
 	return append(slice[:index], slice[index+1:]...)
+}
+
+func ToBytes(i interface{}) ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	err := encoder.Encode(i)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
+}
+
+func FromBytes(i interface{}, data []byte) error {
+	encoder := gob.NewDecoder(bytes.NewReader(data))
+	err := encoder.Decode(i)
+	if err != nil {
+		return err
+	}
+	return nil
 }

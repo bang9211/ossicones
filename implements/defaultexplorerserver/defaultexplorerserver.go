@@ -8,7 +8,6 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
@@ -84,10 +83,14 @@ func (d *DefaultExplorerServer) init() error {
 }
 
 func (d *DefaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
-	tempBlocks := ossiconesblockchain.GetOrCreate(d.config).AllBlocks()
 	blocks := []blockchain.Block{}
-	for _, block := range tempBlocks {
-		blocks = append(blocks, block.(blockchain.Block))
+	tempBlocks, err := d.blockchain.AllBlocks()
+	if err != nil {
+		log.Printf("failed to get all blocks : %s", err)
+	} else {
+		for _, block := range tempBlocks {
+			blocks = append(blocks, block.(blockchain.Block))
+		}
 	}
 	data := homeData{"Home", blocks}
 
@@ -101,7 +104,10 @@ func (d *DefaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		r.ParseForm()
 		data := r.Form.Get("blockData")
-		d.blockchain.AddBlock(data)
+		err := d.blockchain.AddBlock(data)
+		if err != nil {
+			fmt.Printf("failed to add block : %s", err)
+		}
 		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
 	}
 }

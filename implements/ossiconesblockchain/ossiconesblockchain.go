@@ -2,11 +2,15 @@ package ossiconesblockchain
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
+	"github.com/bang9211/ossicones/interfaces/database"
+	"github.com/bang9211/ossicones/utils"
 )
 
 const (
@@ -15,97 +19,150 @@ const (
 )
 
 var obc *OssiconesBlockchain
+var db database.Database
 var once sync.Once
 
-// OssiconesBlock for OssiconesBlockChain.
-type OssiconesBlock struct {
-	Data     string `json:"data"`
-	Hash     string `json:"hash"`
-	PrevHash string `json:"prevhash,omitempty"`
-	Height   int    `json:"height"`
-}
-
-func (b *OssiconesBlock) CalculateHash() {
-	Hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
-	b.Hash = fmt.Sprintf("%x", Hash)
-}
-
-func (b *OssiconesBlock) GetData() string {
-	return b.Data
-}
-
 type OssiconesBlockchain struct {
-	config config.Config
-	blocks []*OssiconesBlock
+	config     config.Config
+	NewestHash string `json:"newstHash"`
+	Height     int    `json:"height"`
 }
 
 // GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(config config.Config) blockchain.Blockchain {
+func GetOrCreate(config config.Config, database database.Database) blockchain.Blockchain {
 	if obc == nil {
+		var err error = nil
 		once.Do(func() {
+			db = database
 			obc = &OssiconesBlockchain{config: config}
-			genesisData := config.GetString(
-				genesisBlockDataConfigPath,
-				defaultGenesisBlockData)
-			obc.AddBlock(genesisData)
+
+			var checkpoint []byte
+			checkpoint, err = db.GetCheckpoint()
+			if err != nil {
+				log.Printf("failed to get checkpoint : %s", err)
+				return
+			}
+			if checkpoint == nil {
+				genesisData := config.GetString(genesisBlockDataConfigPath, defaultGenesisBlockData)
+				err = obc.AddBlock(genesisData)
+			} else {
+				log.Printf("Restoring...")
+				err = obc.restore(checkpoint)
+			}
+
 		})
+		if err != nil {
+			utils.HandleError(err)
+		}
 	}
+	log.Printf("Newest Hash : %s\n Height : %d", obc.NewestHash, obc.Height)
 	return obc
 }
 
-func (o *OssiconesBlockchain) createBlock(Data string) *OssiconesBlock {
-	newBlock := OssiconesBlock{
-		Data:     Data,
-		PrevHash: o.getLastBlockHash(),
-		Height:   len(o.blocks) + 1,
+func (o *OssiconesBlockchain) AddBlock(data string) error {
+	newBlock, err := o.createBlock(data, o.NewestHash, o.Height+1)
+	if err != nil {
+		return err
 	}
-	newBlock.CalculateHash()
-	return &newBlock
+	o.NewestHash = newBlock.Hash
+	o.Height = newBlock.Height
+	err = o.persist()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (o *OssiconesBlockchain) getLastBlockHash() string {
-	if len(o.blocks) > 0 {
-		return o.blocks[len(o.blocks)-1].Hash
+func (o *OssiconesBlockchain) createBlock(data string, prevHash string, height int) (*OssiconesBlock, error) {
+	newBlock := &OssiconesBlock{
+		Data:     data,
+		PrevHash: prevHash,
+		Height:   height,
 	}
-	return ""
+	payload := newBlock.Data + newBlock.PrevHash + fmt.Sprintf("%d", newBlock.Height)
+	newBlock.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(payload)))
+	err := newBlock.persist()
+	if err != nil {
+		return nil, err
+	}
+
+	return newBlock, nil
 }
 
-func (o *OssiconesBlockchain) AddBlock(Data string) {
-	newBlock := o.createBlock(Data)
-	newBlock.CalculateHash()
-	o.blocks = append(o.blocks, newBlock)
+func (o *OssiconesBlockchain) persist() error {
+	data, err := utils.ToBytes(o)
+	if err != nil {
+		return err
+	}
+	db.SaveBlockchain(data)
+
+	return nil
 }
 
-func (o *OssiconesBlockchain) AllBlocks() []interface{} {
-	blocks := make([]interface{}, len(o.blocks))
-	for i, block := range o.blocks {
-		blocks[i] = block
+func (o *OssiconesBlockchain) restore(data []byte) error {
+	err := utils.FromBytes(o, data)
+	if err != nil {
+		return err
 	}
-	return blocks
+	return nil
 }
 
-func (o *OssiconesBlockchain) GetBlock(height int) (blockchain.Block, error) {
-	if height > len(o.blocks) {
-		return nil, blockchain.ErrorNotFound
+func (o *OssiconesBlockchain) AllBlocks() ([]interface{}, error) {
+	blocks := []interface{}{}
+	hashCursor := o.NewestHash
+	for {
+		block, err := o.GetBlock(hashCursor)
+		if err != nil {
+			return nil, err
+		}
+		blocks = append(blocks, block)
+		if block.GetPrevHash() != "" {
+			hashCursor = block.GetPrevHash()
+		} else {
+			break
+		}
 	}
-	return o.blocks[height-1], nil
+	return blocks, nil
+}
+
+var ErrNotFound = errors.New("block not found")
+
+func (o *OssiconesBlockchain) GetBlock(hash string) (blockchain.Block, error) {
+	blockBytes, err := db.GetBlock(hash)
+	if err != nil {
+		return nil, err
+	}
+	if blockBytes == nil {
+		return nil, ErrNotFound
+	}
+	block := &OssiconesBlock{}
+	err = block.restore(blockBytes)
+	if err != nil {
+		return nil, err
+	}
+	return block, nil
 }
 
 func (o *OssiconesBlockchain) PrintBlock() {
-	for i, OssiconesBlock := range o.blocks {
-		fmt.Println(i, ":", *OssiconesBlock)
+	blocks, err := o.AllBlocks()
+	if err != nil {
+		log.Printf("failed to get all blocks : %s", err)
+	}
+	for i, block := range blocks {
+		fmt.Println(i, ":", *block.(*OssiconesBlock))
 	}
 }
 
-func (o *OssiconesBlockchain) Reset() error {
-	o.blocks = []*OssiconesBlock{}
-	data := o.config.GetString(
-		"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
-		defaultGenesisBlockData)
-	obc.AddBlock(data)
-	return nil
-}
+// func (o *OssiconesBlockchain) Reset() error {
+// 	o.blocks = []*OssiconesBlock{}
+// 	data := o.config.GetString(
+// 		"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
+// 		defaultGenesisBlockData)
+// 	obc.AddBlock(data)
+// 	return nil
+// }
 
 func (o *OssiconesBlockchain) Close() error {
 	return nil

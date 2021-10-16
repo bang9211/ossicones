@@ -102,7 +102,7 @@ func (d *DefaultRESTAPIServer) init() error {
 	d.handler.Use(jsonContentTypeMiddleware)
 	d.handler.HandleFunc("/", d.documentation).Methods("GET")
 	d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
-	d.handler.HandleFunc("/blocks/{height:[0-9]+}", d.block).Methods("GET")
+	d.handler.HandleFunc("/blocks/{hash:[a-f0-9]+}", d.block).Methods("GET")
 
 	d.Serve()
 
@@ -130,7 +130,7 @@ func (d *DefaultRESTAPIServer) documentation(rw http.ResponseWriter, r *http.Req
 			Payload:     "data:string",
 		},
 		{
-			URL:         defaultURL{d.address, "/blocks/{id}"},
+			URL:         defaultURL{d.address, "/blocks/{hash}"},
 			Method:      "GET",
 			Description: "See A Block",
 		},
@@ -142,7 +142,11 @@ func (d *DefaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		rw.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(rw).Encode(d.blockchain.AllBlocks())
+		blocks, err := d.blockchain.AllBlocks()
+		if err != nil {
+			log.Printf("failed to get all blocks : %s", err)
+		}
+		json.NewEncoder(rw).Encode(blocks)
 	case "POST":
 		var addBlockBody AddBlockBody
 		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
@@ -155,9 +159,8 @@ func (d *DefaultRESTAPIServer) blocks(rw http.ResponseWriter, r *http.Request) {
 
 func (d *DefaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["height"])
-	utils.HandleError(err)
-	block, err := d.blockchain.GetBlock(id)
+	hash := vars["hash"]
+	block, err := d.blockchain.GetBlock(hash)
 	encoder := json.NewEncoder(rw)
 	if err == blockchain.ErrorNotFound {
 		encoder.Encode(ErrorResponse{err.Error()})

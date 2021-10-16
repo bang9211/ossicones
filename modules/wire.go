@@ -4,11 +4,13 @@
 package modules
 
 import (
+	"github.com/bang9211/ossicones/implements/bolt"
 	"github.com/bang9211/ossicones/implements/defaultexplorerserver"
 	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
+	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/google/wire"
@@ -60,8 +62,14 @@ var EagerInjectors = map[string]interface{}{}
 // - func InjectOssiconesBlockChain(config config.Config) (blockchain.Blockchain, error) {}
 //
 
+// InjectBolt injects dependencies and inits of Database.
+func InjectBolt(config config.Config) (database.Database, error) {
+	wire.Build(bolt.GetOrCreate)
+	return nil, nil
+}
+
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
-func InjectOssiconesBlockchain(config config.Config) (blockchain.Blockchain, error) {
+func InjectOssiconesBlockchain(config config.Config, db database.Database) (blockchain.Blockchain, error) {
 	wire.Build(ossiconesblockchain.GetOrCreate)
 	return nil, nil
 }

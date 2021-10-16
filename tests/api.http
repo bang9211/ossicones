@@ -1,16 +1,16 @@
-http://localhost:4000/
+http://localhost:6000/
 
 ###
 
-http://localhost:4000/blocks
+http://localhost:6000/blocks
 
 ###
 
-POST http://localhost:4000/blocks
+POST http://localhost:6000/blocks
 
 {
     "message": "Data for my block"
 }
 
 ###
-http://localhost:4000/blocks/5
+http://localhost:6000/blocks/a035e992e234a02ce3598b221aad77374de7970f55a89cd4b94b2849861e7172
