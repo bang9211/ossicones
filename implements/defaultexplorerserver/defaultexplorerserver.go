@@ -39,8 +39,7 @@ type DefaultExplorerServer struct {
 	address      string
 }
 
-// New returns the existing singletone object of DefaultHTTPServer.
-// Otherwise, it creates and returns the object.
+// New creates, initializes and returns DefaultExplorerServer.
 func New(
 	config config.Config,
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {

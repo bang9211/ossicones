@@ -21,6 +21,7 @@ type BoltDB struct {
 	bolt   *bolt.DB
 }
 
+// New creates, initializes and returns BoltDB.
 func New(config config.Config) database.Database {
 	bt := &BoltDB{
 		config: config,

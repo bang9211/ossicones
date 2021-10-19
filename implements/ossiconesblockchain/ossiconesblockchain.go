@@ -32,7 +32,7 @@ func New(config config.Config, database database.Database) blockchain.Blockchain
 
 	err := obc.init()
 	if err != nil {
-		log.Printf("failed to init : %s", err)
+		log.Printf("failed to init OssiconesBlockchain : %s", err)
 		return nil
 	}
 	log.Printf("Newest Hash : %s\n Height : %d", obc.NewestHash, obc.Height)

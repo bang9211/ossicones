@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
@@ -21,9 +20,6 @@ const (
 	defaultHost    = "0.0.0.0"
 	defaultPort    = 4000
 )
-
-var drs *DefaultRESTAPIServer
-var once sync.Once
 
 type defaultURL struct {
 	address string
@@ -66,24 +62,21 @@ type DefaultRESTAPIServer struct {
 	address    string
 }
 
-// GetOrCreate returns the existing singletone object of DefaultAPIServer.
+// New returns the existing singletone object of DefaultAPIServer.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(
+func New(
 	config config.Config,
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
-	if drs == nil {
-		once.Do(func() {
-			drs = &DefaultRESTAPIServer{
-				config:     config,
-				handler:    mux.NewRouter(),
-				blockchain: blocchain,
-			}
-		})
-		err := drs.init()
-		if err != nil {
-			drs = nil
-			return nil
-		}
+	drs := &DefaultRESTAPIServer{
+		config:     config,
+		handler:    mux.NewRouter(),
+		blockchain: blocchain,
+	}
+
+	err := drs.init()
+	if err != nil {
+		log.Printf("failed to init DefaultRESTAPIServer : %s", err)
+		return nil
 	}
 
 	return drs
@@ -104,7 +97,7 @@ func (d *DefaultRESTAPIServer) init() error {
 	d.handler.HandleFunc("/blocks", d.blocks).Methods("GET", "POST")
 	d.handler.HandleFunc("/blocks/{hash:[a-f0-9]+}", d.block).Methods("GET")
 
-	d.Serve()
+	go d.Serve()
 
 	return nil
 }
@@ -169,14 +162,16 @@ func (d *DefaultRESTAPIServer) block(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *DefaultRESTAPIServer) Serve() {
-	go func() {
-		fmt.Printf("Listening REST API Server on %s\n", d.address)
-		log.Fatal(http.ListenAndServe(d.address, d.handler))
-	}()
+func (d *DefaultRESTAPIServer) Serve() error {
+	log.Printf("Listening REST API Server on %s\n", d.address)
+	err := http.ListenAndServe(d.address, d.handler)
+	if err != nil {
+		log.Printf("failed to ListenAndServe DefaultExplorerServer : %s", err)
+		return err
+	}
+	return nil
 }
 
 func (d *DefaultRESTAPIServer) Close() error {
-	drs = nil
 	return nil
 }
