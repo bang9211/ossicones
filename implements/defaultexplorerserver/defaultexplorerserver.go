@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 	"text/template"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
@@ -25,8 +24,6 @@ const (
 	templatePartialPath = "/partials/*.gohtml"
 )
 
-var dhs *DefaultExplorerServer
-var once sync.Once
 var templates *template.Template
 
 type homeData struct {
@@ -42,24 +39,21 @@ type DefaultExplorerServer struct {
 	address      string
 }
 
-// GetOrCreate returns the existing singletone object of DefaultHTTPServer.
+// New returns the existing singletone object of DefaultHTTPServer.
 // Otherwise, it creates and returns the object.
-func GetOrCreate(
+func New(
 	config config.Config,
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
-	if dhs == nil {
-		once.Do(func() {
-			dhs = &DefaultExplorerServer{
-				config:     config,
-				handler:    http.NewServeMux(),
-				blockchain: blocchain,
-			}
-		})
-		err := dhs.init()
-		if err != nil {
-			dhs = nil
-			return nil
-		}
+	dhs := &DefaultExplorerServer{
+		config:     config,
+		handler:    http.NewServeMux(),
+		blockchain: blocchain,
+	}
+
+	err := dhs.init()
+	if err != nil {
+		log.Printf("failed to init DefaultExplorerServer : %s", err)
+		return nil
 	}
 
 	return dhs
@@ -77,7 +71,7 @@ func (d *DefaultExplorerServer) init() error {
 	d.handler.HandleFunc("/", d.home)
 	d.handler.HandleFunc("/add", d.add)
 
-	d.Serve()
+	go d.Serve()
 
 	return nil
 }
@@ -112,14 +106,16 @@ func (d *DefaultExplorerServer) add(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (d *DefaultExplorerServer) Serve() {
-	go func() {
-		fmt.Printf("Listening Explorer Server on %s\n", d.address)
-		log.Fatal(http.ListenAndServe(d.address, d.handler))
-	}()
+func (d *DefaultExplorerServer) Serve() error {
+	log.Printf("Listening Explorer Server on %s\n", d.address)
+	err := http.ListenAndServe(d.address, d.handler)
+	if err != nil {
+		log.Printf("failed to ListenAndServe DefaultExplorerServer : %s", err)
+		return err
+	}
+	return nil
 }
 
 func (d *DefaultExplorerServer) Close() error {
-	dhs = nil
 	return nil
 }
