@@ -19,8 +19,6 @@ type Blockchain interface {
 	PrintBlock()
 	// GetBlock get block at the height of this blockchain.
 	GetBlock(hash string) (Block, error)
-	// Reset resets blockchain data.
-	// Reset() error
 	// Close closes blockchain.
 	Close() error
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sync"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
@@ -18,9 +17,7 @@ const (
 	defaultGenesisBlockData    = "Genesis OssiconesBlock"
 )
 
-var obc *OssiconesBlockchain
 var db database.Database
-var once sync.Once
 
 type OssiconesBlockchain struct {
 	config     config.Config
@@ -28,36 +25,34 @@ type OssiconesBlockchain struct {
 	Height     int    `json:"height"`
 }
 
-// GetOrCreate returns the existing singletone object of OssiconesBlockchain if present.
-// Otherwise, it creates and returns the object.
-func GetOrCreate(config config.Config, database database.Database) blockchain.Blockchain {
-	if obc == nil {
-		var err error = nil
-		once.Do(func() {
-			db = database
-			obc = &OssiconesBlockchain{config: config}
+// New creates, initializes and returns OssiconesBlockchain.
+func New(config config.Config, database database.Database) blockchain.Blockchain {
+	db = database
+	obc := &OssiconesBlockchain{config: config}
 
-			var checkpoint []byte
-			checkpoint, err = db.GetCheckpoint()
-			if err != nil {
-				log.Printf("failed to get checkpoint : %s", err)
-				return
-			}
-			if checkpoint == nil {
-				genesisData := config.GetString(genesisBlockDataConfigPath, defaultGenesisBlockData)
-				err = obc.AddBlock(genesisData)
-			} else {
-				log.Printf("Restoring...")
-				err = obc.restore(checkpoint)
-			}
-
-		})
-		if err != nil {
-			utils.HandleError(err)
-		}
+	err := obc.init()
+	if err != nil {
+		log.Printf("failed to init : %s", err)
+		return nil
 	}
 	log.Printf("Newest Hash : %s\n Height : %d", obc.NewestHash, obc.Height)
+
 	return obc
+}
+
+func (o *OssiconesBlockchain) init() error {
+	checkpoint, err := db.GetCheckpoint()
+	if err != nil {
+		return fmt.Errorf("failed to get checkpoint : %s", err)
+	}
+	if checkpoint == nil {
+		genesisData := o.config.GetString(genesisBlockDataConfigPath, defaultGenesisBlockData)
+		err = o.AddBlock(genesisData)
+	} else {
+		log.Printf("Restoring...")
+		err = o.restore(checkpoint)
+	}
+	return err
 }
 
 func (o *OssiconesBlockchain) AddBlock(data string) error {
@@ -154,15 +149,6 @@ func (o *OssiconesBlockchain) PrintBlock() {
 		fmt.Println(i, ":", *block.(*OssiconesBlock))
 	}
 }
-
-// func (o *OssiconesBlockchain) Reset() error {
-// 	o.blocks = []*OssiconesBlock{}
-// 	data := o.config.GetString(
-// 		"OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA",
-// 		defaultGenesisBlockData)
-// 	obc.AddBlock(data)
-// 	return nil
-// }
 
 func (o *OssiconesBlockchain) Close() error {
 	return nil

@@ -22,25 +22,25 @@ import (
 
 // InjectBolt injects dependencies and inits of Database.
 func InjectBolt(config2 config.Config) (database.Database, error) {
-	databaseDatabase := bolt.GetOrCreate(config2)
+	databaseDatabase := bolt.New(config2)
 	return databaseDatabase, nil
 }
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
 func InjectOssiconesBlockchain(config2 config.Config, db database.Database) (blockchain.Blockchain, error) {
-	blockchainBlockchain := ossiconesblockchain.GetOrCreate(config2, db)
+	blockchainBlockchain := ossiconesblockchain.New(config2, db)
 	return blockchainBlockchain, nil
 }
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
 func InjectDefaultExplorerServer(config2 config.Config, blockchain2 blockchain.Blockchain) (explorerserver.ExplorerServer, error) {
-	explorerServer := defaultexplorerserver.GetOrCreate(config2, blockchain2)
+	explorerServer := defaultexplorerserver.New(config2, blockchain2)
 	return explorerServer, nil
 }
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
 func InjectDefaultRESTAPIServer(config2 config.Config, blockchain2 blockchain.Blockchain) (restapiserver.RESTAPIServer, error) {
-	restapiServer := defaultrestapiserver.GetOrCreate(config2, blockchain2)
+	restapiServer := defaultrestapiserver.New(config2, blockchain2)
 	return restapiServer, nil
 }
 

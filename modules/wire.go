@@ -64,13 +64,13 @@ var EagerInjectors = map[string]interface{}{}
 
 // InjectBolt injects dependencies and inits of Database.
 func InjectBolt(config config.Config) (database.Database, error) {
-	wire.Build(bolt.GetOrCreate)
+	wire.Build(bolt.New)
 	return nil, nil
 }
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
 func InjectOssiconesBlockchain(config config.Config, db database.Database) (blockchain.Blockchain, error) {
-	wire.Build(ossiconesblockchain.GetOrCreate)
+	wire.Build(ossiconesblockchain.New)
 	return nil, nil
 }
 
@@ -79,7 +79,7 @@ func InjectDefaultExplorerServer(
 	config config.Config,
 	blockchain blockchain.Blockchain,
 ) (explorerserver.ExplorerServer, error) {
-	wire.Build(defaultexplorerserver.GetOrCreate)
+	wire.Build(defaultexplorerserver.New)
 	return nil, nil
 }
 
@@ -88,6 +88,6 @@ func InjectDefaultRESTAPIServer(
 	config config.Config,
 	blockchain blockchain.Blockchain,
 ) (restapiserver.RESTAPIServer, error) {
-	wire.Build(defaultrestapiserver.GetOrCreate)
+	wire.Build(defaultrestapiserver.New)
 	return nil, nil
 }
