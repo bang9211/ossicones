@@ -16,11 +16,11 @@ go build
 Dev Plan=
 
 - Blockchain & Coin Features
-- Dependency Injection(Wire) : https://syntaxsugar.tistory.com/entry/Golang-Dependency-Injection
+- IoC Container(Wire-Jacket) : https://syntaxsugar.tistory.com/entry/koWire-Jacket-IoC-Container-of-googlewire-for-cloud-native
 - Configuration(Viper) : https://syntaxsugar.tistory.com/entry/Golang-Configuration
 - Test(Testify) : https://syntaxsugar.tistory.com/entry/GoGolang-Test
 - Logging(UNDEFINED)
-- Database(UNDEFINED)
+- Persistence(Bolt)
 - Containerize(Docker)
 - Orchestration(Kubernetes)
 - Clean Code
