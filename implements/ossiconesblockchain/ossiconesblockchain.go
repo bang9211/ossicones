@@ -140,6 +140,14 @@ func (o *OssiconesBlockchain) GetBlock(hash string) (blockchain.Block, error) {
 	return block, nil
 }
 
+func (o *OssiconesBlockchain) GetNewestHash() string {
+	return o.NewestHash
+}
+
+func (o *OssiconesBlockchain) GetHeight() int {
+	return o.Height
+}
+
 func (o *OssiconesBlockchain) PrintBlock() {
 	blocks, err := o.AllBlocks()
 	if err != nil {

@@ -1,6 +1,9 @@
 package defaultexplorerserver
 
 import (
+	"fmt"
+
+	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
@@ -11,14 +14,14 @@ import (
 func initTest() (config.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
 	cfg := wirejacket.GetConfig()
 
-	bc, err := modules.InjectOssiconesBlockchain(cfg)
+	db, err := modules.InjectBolt(cfg)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	err = bc.Reset()
-	if err != nil {
-		return nil, nil, nil, err
+	bc := ossiconesblockchain.New(cfg, db)
+	if bc == nil {
+		return nil, nil, nil, fmt.Errorf("failed to New()")
 	}
 
 	es, err := modules.InjectDefaultExplorerServer(cfg, bc)

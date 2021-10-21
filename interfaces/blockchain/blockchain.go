@@ -17,8 +17,12 @@ type Blockchain interface {
 	AllBlocks() ([]interface{}, error)
 	// PrintBlock just prints all the blocks.
 	PrintBlock()
-	// GetBlock get block at the height of this blockchain.
+	// GetBlock gets block at the height of this blockchain.
 	GetBlock(hash string) (Block, error)
+	// GetNewestHash gets newest hash of this blockchain.
+	GetNewestHash() string
+	// GetHeight gets height of this blockchain.
+	GetHeight() int
 	// Close closes blockchain.
 	Close() error
 }
