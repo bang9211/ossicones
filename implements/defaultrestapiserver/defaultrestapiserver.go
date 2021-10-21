@@ -62,8 +62,7 @@ type DefaultRESTAPIServer struct {
 	address    string
 }
 
-// New returns the existing singletone object of DefaultAPIServer.
-// Otherwise, it creates and returns the object.
+// New creates, initializes and returns DefaultRESTAPIServer.
 func New(
 	config config.Config,
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
