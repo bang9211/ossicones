@@ -38,12 +38,13 @@ func TestImplementsBlock(t *testing.T) {
 
 func TestCalculateHash(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
-	cfg, bc, err := initTest()
+	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
+	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
 
-	blocks := bc.AllBlocks()
+	blocks, err := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
+	NoError(t, err)
 
 	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 		"It must implements of interface blockchain.Block")
@@ -69,7 +70,8 @@ func TestCalculateHash(t *testing.T) {
 			Equal(t, test.expected, newBlock.Hash)
 
 			bc.AddBlock(test.input)
-			blocks = bc.AllBlocks()
+			blocks, err = bc.AllBlocks()
+			NoError(t, err)
 			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 				"It must implements of interface blockchain.Block")
 			block, ok := blocks[len(blocks)-1].(blockchain.Block)
@@ -85,11 +87,12 @@ func TestCalculateHash(t *testing.T) {
 
 func TestGetData(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
-	cfg, bc, err := initTest()
+	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, bc), "Failed to closeTest()")
+	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
 
-	blocks := bc.AllBlocks()
+	blocks, err := bc.AllBlocks()
+	NoError(t, err)
 	Equal(t, 1, len(blocks))
 
 	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
@@ -102,7 +105,8 @@ func TestGetData(t *testing.T) {
 	for _, test := range getdatatests {
 		t.Run(test.title, func(t *testing.T) {
 			bc.AddBlock(test.input)
-			blocks = bc.AllBlocks()
+			blocks, err = bc.AllBlocks()
+			NoError(t, err)
 			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 				"It must implements of interface blockchain.Block")
 			block, ok := blocks[len(blocks)-1].(blockchain.Block)
