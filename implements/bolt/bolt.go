@@ -2,9 +2,11 @@ package bolt
 
 import (
 	"log"
+	"os"
 
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
+	"github.com/bang9211/ossicones/utils"
 	"github.com/boltdb/bolt"
 )
 
@@ -36,8 +38,14 @@ func New(config config.Config) database.Database {
 }
 
 func (bdb *BoltDB) init() error {
-	var err error
 	boltPath := bdb.config.GetString(boltPathConfigPath, defaultBoltPath)
+
+	dirPath := utils.GetFileDir(boltPath)
+	err := os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	bdb.bolt, err = bolt.Open(boltPath, 0600, nil)
 	if err != nil {
 		return err
@@ -58,7 +66,8 @@ func (bdb *BoltDB) init() error {
 }
 
 func (bdb *BoltDB) SaveBlock(hash string, data []byte) error {
-	log.Printf("Saving Block %s\nData: %b", hash, data)
+	log.Printf("Saving Block %s", hash)
+	// log.Printf("Saving Block %s\nData: %b", hash, data)
 	return bdb.bolt.Update(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(blocksBucket))
 		err := bucket.Put([]byte(hash), data)
@@ -67,7 +76,8 @@ func (bdb *BoltDB) SaveBlock(hash string, data []byte) error {
 }
 
 func (bdb *BoltDB) SaveBlockchain(data []byte) error {
-	log.Printf("Saving Blockchain : %b", data)
+	log.Printf("Saving Blockchain")
+	// log.Printf("Saving Blockchain : %b", data)
 	return bdb.bolt.Update(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(dataBucket))
 		err := bucket.Put([]byte(checkpoint), data)

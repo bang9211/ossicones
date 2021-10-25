@@ -104,8 +104,8 @@ func (o *OssiconesBlockchain) restore(data []byte) error {
 	return nil
 }
 
-func (o *OssiconesBlockchain) AllBlocks() ([]interface{}, error) {
-	blocks := []interface{}{}
+func (o *OssiconesBlockchain) AllBlocks() ([]blockchain.Block, error) {
+	blocks := []blockchain.Block{}
 	hashCursor := o.NewestHash
 	for {
 		block, err := o.GetBlock(hashCursor)

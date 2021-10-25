@@ -35,6 +35,7 @@ import (
 // 	}
 //
 var Injectors = map[string]interface{}{
+	"bolt":                  InjectBolt,
 	"ossiconesblockchain":   InjectOssiconesBlockchain,
 	"defaultexplorerserver": InjectDefaultExplorerServer,
 	"defaultrestapiserver":  InjectDefaultRESTAPIServer,

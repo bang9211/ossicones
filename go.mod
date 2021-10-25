@@ -3,17 +3,15 @@ module github.com/bang9211/ossicones
 go 1.17
 
 require (
-	github.com/bang9211/wire-jacket v1.1.3
+	github.com/bang9211/wire-jacket v1.1.4
+	github.com/boltdb/bolt v1.3.1
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/go-ps v1.0.0
-	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.7.0
 )
 
 require (
-	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -24,6 +22,8 @@ require (
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/viper v1.9.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	golang.org/x/sys v0.0.0-20211013075003-97ac67df715c // indirect
 	golang.org/x/text v0.3.7 // indirect

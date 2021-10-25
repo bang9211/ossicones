@@ -7,6 +7,7 @@ type Block interface {
 	CalculateHash()
 	// GetData gets data of the block.
 	GetData() string
+	// GetPrevHash gets hash data of the previous block.
 	GetPrevHash() string
 }
 
@@ -14,7 +15,7 @@ type Blockchain interface {
 	// AddBlock adds data to blockchain.
 	AddBlock(data string) error
 	// AllBlocks gets all the blocks of this blockchain.
-	AllBlocks() ([]interface{}, error)
+	AllBlocks() ([]Block, error)
 	// PrintBlock just prints all the blocks.
 	PrintBlock()
 	// GetBlock gets block at the height of this blockchain.
