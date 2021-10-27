@@ -2,6 +2,7 @@ package ossiconesblockchain
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
@@ -15,6 +16,8 @@ const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
+
+	err := os.Remove("ossicones.db")
 
 	db, err := modules.InjectBolt(cfg)
 	if err != nil {

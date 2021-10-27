@@ -14,10 +14,10 @@ var calculatehashtests = []struct {
 	input    string
 	expected string
 }{
-	{"Calculating hash of Test Data1", "Test Data1", "bfa6723ef7f9771b84a4f6cc43d1d5e80c1bbcf965def63f7af70c392c4839e2"},
-	{"Calculating hash of Test Data2", "Test Data2", "0db581d518bb6f6d995afd26e6d3f35aebd207b8a1e4d5a3851ccdca1be88209"},
-	{"Calculating hash of Test Data3", "Test Data3", "84084c8d4b8b7694b15ec1d5c6ce23a2e68704be54508b7817cabaf76503510f"},
-	{"Calculating hash of Test Data4", "Test Data4", "19476fec339cc95ca6b8325eceb99f944619d69fd9c37f7fc2fa536094750538"},
+	{"Calculating hash of Test Data1", "Test Data1", "ed739e9aeb8d09d33a8687fa6c35d88b5bcf22c5ba134b7862d8347e55016262"},
+	{"Calculating hash of Test Data2", "Test Data2", "f781594d46943ee46a392363426db980f8a87466d9ab53ded834c92069890330"},
+	{"Calculating hash of Test Data3", "Test Data3", "54d7f6fc926e7d51a399a45a82f1af01c9bac63eb135d1815cc309a05831944e"},
+	{"Calculating hash of Test Data4", "Test Data4", "e91e533a9c1e791d73c547a32240a5f7454ad7e3b205070f89861cff2ff67bef"},
 }
 
 var getdatatests = []struct {
@@ -40,7 +40,7 @@ func TestCalculateHash(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
 	Equal(t, 1, len(blocks))
@@ -57,7 +57,7 @@ func TestCalculateHash(t *testing.T) {
 	True(t, ok)
 
 	Equal(t, ossiconesBlock.Hash,
-		"90aa8185295e7f87c0c1608967e4abf6a5e201938180a3a6cc8d891d51283532")
+		"46a823ac625c5d086378bd28d032ffd421738bdb1f13f8a403486bc7ea645082")
 
 	for _, test := range calculatehashtests {
 		t.Run(test.title, func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestGetData(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
 	NoError(t, err)
@@ -97,20 +97,16 @@ func TestGetData(t *testing.T) {
 
 	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 		"It must implements of interface blockchain.Block")
-	block, ok := blocks[len(blocks)-1].(blockchain.Block)
-	True(t, ok)
 
-	Equal(t, block.GetData(), genesisBlockData)
+	Equal(t, blocks[0].GetData(), genesisBlockData)
 
 	for _, test := range getdatatests {
 		t.Run(test.title, func(t *testing.T) {
-			bc.AddBlock(test.input)
-			blocks, err = bc.AllBlocks()
+			err := bc.AddBlock(test.input)
 			NoError(t, err)
-			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
-				"It must implements of interface blockchain.Block")
-			block, ok := blocks[len(blocks)-1].(blockchain.Block)
-			True(t, ok)
+			hash := bc.GetNewestHash()
+			block, err := bc.GetBlock(hash)
+			NoError(t, err)
 			Equal(t, test.expected, block.GetData())
 		})
 	}
