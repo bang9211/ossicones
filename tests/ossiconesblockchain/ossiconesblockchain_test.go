@@ -44,7 +44,7 @@ var getblocktests = []struct {
 func TestImplementsBlockchain(t *testing.T) {
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	Implements(t, (*blockchain.Blockchain)(nil), bc,
 		"It must implements of interface blockchain.Blockchain")
@@ -54,30 +54,19 @@ func TestAddBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
 	NoError(t, err)
 	Equal(t, 1, len(blocks))
 
-	Implements(t, (*blockchain.Block)(nil), blocks[0],
-		"It must implements of interface blockchain.Block")
-	block, ok := blocks[0].(blockchain.Block)
-	True(t, ok)
-	Equal(t, genesisBlockData, block.GetData())
+	Equal(t, genesisBlockData, blocks[0].GetData())
 
-	for i, test := range addblocktests {
+	for _, test := range addblocktests {
 		t.Run(test.title, func(t *testing.T) {
 			bc.AddBlock(test.input)
-
-			blocks, err = bc.AllBlocks()
+			block, err := bc.GetBlock(bc.GetNewestHash())
 			NoError(t, err)
-			Equal(t, test.expected, len(blocks))
-
-			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
-				"It must implements of interface blockchain.Block")
-			block, ok := blocks[i+1].(blockchain.Block)
-			True(t, ok)
 			Equal(t, test.input, block.GetData())
 		})
 	}
@@ -87,31 +76,22 @@ func TestAllBlocks(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
 	NoError(t, err)
 	Equal(t, 1, len(blocks))
 
-	Implements(t, (*blockchain.Block)(nil), blocks[0],
-		"It must implements of interface blockchain.Block")
-	block, ok := blocks[0].(blockchain.Block)
-	True(t, ok)
-	Equal(t, genesisBlockData, block.GetData())
+	Equal(t, genesisBlockData, blocks[0].GetData())
 
-	for i, test := range allblockstests {
+	for _, test := range allblockstests {
 		t.Run(test.title, func(t *testing.T) {
 			bc.AddBlock(test.input)
 
 			blocks, err = bc.AllBlocks()
 			NoError(t, err)
 			Equal(t, test.expected, len(blocks))
-
-			Implements(t, (*blockchain.Block)(nil), blocks[i+1],
-				"It must implements of interface blockchain.Block")
-			block, ok := blocks[i+1].(blockchain.Block)
-			True(t, ok)
-			Equal(t, test.input, block.GetData())
+			Equal(t, test.input, blocks[0].GetData())
 		})
 	}
 }
@@ -120,17 +100,13 @@ func TestGetBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer NoError(t, closeTest(cfg, db, bc), "Failed to closeTest()")
+	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
 	NoError(t, err)
 	Equal(t, 1, len(blocks))
 
-	Implements(t, (*blockchain.Block)(nil), blocks[0],
-		"It must implements of interface blockchain.Block")
-	block, ok := blocks[0].(blockchain.Block)
-	True(t, ok)
-	Equal(t, genesisBlockData, block.GetData())
+	Equal(t, genesisBlockData, blocks[0].GetData())
 
 	//todo get genesisblock
 	genesisBlock, err := bc.GetBlock(bc.GetNewestHash())
@@ -157,8 +133,8 @@ func TestGetBlock(t *testing.T) {
 	for _, test := range getblocktests {
 		t.Run(test.title, func(t *testing.T) {
 			block, err := bc.GetBlock(hash)
-			NoError(t, err, "Failed to get a block of index(%d)", test.input_data)
-			Equal(t, test.input_data, block.GetData())
+			NoError(t, err)
+			Equal(t, test.expected, block.GetData())
 			hash = block.GetPrevHash()
 		})
 	}
