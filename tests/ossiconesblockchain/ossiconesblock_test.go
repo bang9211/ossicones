@@ -31,6 +31,17 @@ var getdatatests = []struct {
 	{"Getting data of block4", "Test Data4", "Test Data4"},
 }
 
+var getprevhashtests = []struct {
+	title    string
+	input    string
+	expected string
+}{
+	{"Getting Previous hash of block1", "Test Data1", "46a823ac625c5d086378bd28d032ffd421738bdb1f13f8a403486bc7ea645082"},
+	{"Getting Previous hash of block2", "Test Data2", "a9cbc6f70a1af8ffc003e3a1a9ef87d41f4b3113c66c1b2663625601609012f1"},
+	{"Getting Previous hash of block3", "Test Data3", "7298f26aa20f68ec9c2fb751d6e8168f25300632cf904c9db0fd1acb42b61eec"},
+	{"Getting Previous hash of block4", "Test Data4", "4bf189892f3dd47db879e79e2e604eaefb76831a2b9fb87ccb6ede5e93aad126"},
+}
+
 func TestImplementsBlock(t *testing.T) {
 	Implements(t, (*blockchain.Block)(nil), new(ossiconesblockchain.OssiconesBlock),
 		"It must implements of interface blockchain.Block")
@@ -108,6 +119,32 @@ func TestGetData(t *testing.T) {
 			block, err := bc.GetBlock(hash)
 			NoError(t, err)
 			Equal(t, test.expected, block.GetData())
+		})
+	}
+}
+
+func TestGetPrevHash(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
+	cfg, db, bc, err := initTest()
+	NoError(t, err, "Failed to initTest()")
+	defer closeTest(cfg, db, bc)
+
+	blocks, err := bc.AllBlocks()
+	NoError(t, err)
+	Equal(t, 1, len(blocks))
+
+	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
+		"It must implements of interface blockchain.Block")
+
+	Equal(t, blocks[0].GetData(), genesisBlockData)
+	for _, test := range getprevhashtests {
+		t.Run(test.title, func(t *testing.T) {
+			err := bc.AddBlock(test.input)
+			NoError(t, err)
+			hash := bc.GetNewestHash()
+			block, err := bc.GetBlock(hash)
+			NoError(t, err)
+			Equal(t, test.expected, block.GetPrevHash())
 		})
 	}
 }
