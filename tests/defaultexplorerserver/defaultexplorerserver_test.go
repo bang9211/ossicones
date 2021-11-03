@@ -13,3 +13,13 @@ func TestImplementExplorerServer(t *testing.T) {
 	Implements(t, (*explorerserver.ExplorerServer)(nil), new(defaultexplorerserver.DefaultExplorerServer),
 		"It must implements of interface explorerserver.ExplorerServer")
 }
+
+func TestServe(t *testing.T) {
+	Implements(t, (*explorerserver.ExplorerServer)(nil), new(defaultexplorerserver.DefaultExplorerServer),
+		"It must implements of interface explorerserver.ExplorerServer")
+}
+
+func TestClose(t *testing.T) {
+	Implements(t, (*explorerserver.ExplorerServer)(nil), new(defaultexplorerserver.DefaultExplorerServer),
+		"It must implements of interface explorerserver.ExplorerServer")
+}

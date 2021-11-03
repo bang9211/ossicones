@@ -13,3 +13,13 @@ func TestImplementRESTAPIServer(t *testing.T) {
 	Implements(t, (*restapiserver.RESTAPIServer)(nil), new(defaultrestapiserver.DefaultRESTAPIServer),
 		"It must implements of interface restapiserver.RESTAPIServer")
 }
+
+func TestServe(t *testing.T) {
+	Implements(t, (*restapiserver.RESTAPIServer)(nil), new(defaultrestapiserver.DefaultRESTAPIServer),
+		"It must implements of interface restapiserver.RESTAPIServer")
+}
+
+func TestClose(t *testing.T) {
+	Implements(t, (*restapiserver.RESTAPIServer)(nil), new(defaultrestapiserver.DefaultRESTAPIServer),
+		"It must implements of interface restapiserver.RESTAPIServer")
+}
