@@ -57,13 +57,10 @@ func TestCalculateHash(t *testing.T) {
 	Equal(t, 1, len(blocks))
 	NoError(t, err)
 
-	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
-		"It must implements of interface blockchain.Block")
-	block, ok := blocks[len(blocks)-1].(blockchain.Block)
-	True(t, ok)
-
+	block := blocks[len(blocks)-1]
 	IsType(t, (*ossiconesblockchain.OssiconesBlock)(nil), block,
 		"It should be equal of type ossiconesblockchain.OssiconesBlock")
+
 	ossiconesBlock, ok := block.(*ossiconesblockchain.OssiconesBlock)
 	True(t, ok)
 
@@ -132,9 +129,6 @@ func TestGetPrevHash(t *testing.T) {
 	blocks, err := bc.AllBlocks()
 	NoError(t, err)
 	Equal(t, 1, len(blocks))
-
-	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
-		"It must implements of interface blockchain.Block")
 
 	Equal(t, blocks[0].GetData(), genesisBlockData)
 	for _, test := range getprevhashtests {
