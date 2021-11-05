@@ -25,11 +25,7 @@ func (b *OssiconesBlock) GetData() string {
 }
 
 func (b *OssiconesBlock) persist() error {
-	block, err := utils.ToBytes(b)
-	if err != nil {
-		return err
-	}
-	db.SaveBlock(b.Hash, block)
+	db.SaveBlock(b.Hash, b)
 	return nil
 }
 

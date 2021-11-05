@@ -1,8 +1,10 @@
 package database
 
+import "github.com/bang9211/ossicones/interfaces/blockchain"
+
 type Database interface {
 	// SaveBlock saves the block to DB.
-	SaveBlock(hash string, data []byte) error
+	SaveBlock(hash string, block blockchain.Block) error
 	// SaveBlockchain saves the blockchain to DB.
 	SaveBlockchain(data []byte) error
 	// GetCheckpoint gets checkpoint from DB.
