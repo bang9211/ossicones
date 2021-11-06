@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/utils"
@@ -66,16 +65,12 @@ func (bdb *BoltDB) init() error {
 	return nil
 }
 
-func (bdb *BoltDB) SaveBlock(hash string, block blockchain.Block) error {
+func (bdb *BoltDB) SaveBlock(hash string, data []byte) error {
 	log.Printf("Saving Block %s", hash)
-	byteBlock, err := utils.ToBytes(block)
-	if err != nil {
-		return err
-	}
-	// log.Printf("Saving Block %s\nData: %b", hash, byteBlock)
+	// log.Printf("Saving Block %s\nData: %b", hash, data)
 	return bdb.bolt.Update(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(blocksBucket))
-		err := bucket.Put([]byte(hash), byteBlock)
+		err := bucket.Put([]byte(hash), data)
 		return err
 	})
 }
