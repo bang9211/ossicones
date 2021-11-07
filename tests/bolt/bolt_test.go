@@ -39,7 +39,7 @@ func TestImplementBolt(t *testing.T) {
 		"It must implements of interface database.Database")
 }
 
-func TestSaveBlock(t *testing.T) {
+func TestSaveAndGetBlock(t *testing.T) {
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
@@ -79,7 +79,7 @@ func TestSaveBlock(t *testing.T) {
 	}
 }
 
-func TestSaveBlockchain(t *testing.T) {
+func TestSaveAndGetBlockchain(t *testing.T) {
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
@@ -118,19 +118,4 @@ func TestSaveBlockchain(t *testing.T) {
 			Equal(t, bc.GetHeight(), newBC.Height)
 		})
 	}
-}
-
-func TestGetBlockchain(t *testing.T) {
-	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
-		"It must implements of interface database.Database")
-}
-
-func TestGetBlock(t *testing.T) {
-	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
-		"It must implements of interface database.Database")
-}
-
-func TestClose(t *testing.T) {
-	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
-		"It must implements of interface database.Database")
 }
