@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	boltPathConfigPath = "ossicones_bolt_path"
-	defaultBoltPath    = "ossicones.db"
-	dataBucket         = "data"
-	blocksBucket       = "blocks"
-	checkpoint         = "checkpoint"
+	boltPathConfigPath   = "ossicones_bolt_path"
+	defaultBoltPath      = "ossicones.db"
+	blockchainBucket     = "blockchain"
+	blocksBucket         = "blocks"
+	blockchainCheckpoint = "blockchain_checkpoint"
 )
 
 type BoltDB struct {
@@ -51,7 +51,7 @@ func (bdb *BoltDB) init() error {
 		return err
 	}
 	err = bdb.bolt.Update(func(t *bolt.Tx) error {
-		_, err := t.CreateBucketIfNotExists([]byte(dataBucket))
+		_, err := t.CreateBucketIfNotExists([]byte(blockchainBucket))
 		if err != nil {
 			return err
 		}
@@ -65,6 +65,29 @@ func (bdb *BoltDB) init() error {
 	return nil
 }
 
+func (bdb *BoltDB) SaveBlockchain(data []byte) error {
+	log.Printf("Saving Blockchain")
+	// log.Printf("Saving Blockchain : %b", data)
+	return bdb.bolt.Update(func(t *bolt.Tx) error {
+		bucket := t.Bucket([]byte(blockchainBucket))
+		err := bucket.Put([]byte(blockchainCheckpoint), data)
+		return err
+	})
+}
+
+func (bdb *BoltDB) GetBlockchain() ([]byte, error) {
+	var data []byte
+	err := bdb.bolt.View(func(t *bolt.Tx) error {
+		bucket := t.Bucket([]byte(blockchainBucket))
+		data = bucket.Get([]byte(blockchainCheckpoint))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (bdb *BoltDB) SaveBlock(hash string, data []byte) error {
 	log.Printf("Saving Block %s", hash)
 	// log.Printf("Saving Block %s\nData: %b", hash, data)
@@ -73,29 +96,6 @@ func (bdb *BoltDB) SaveBlock(hash string, data []byte) error {
 		err := bucket.Put([]byte(hash), data)
 		return err
 	})
-}
-
-func (bdb *BoltDB) SaveBlockchain(data []byte) error {
-	log.Printf("Saving Blockchain")
-	// log.Printf("Saving Blockchain : %b", data)
-	return bdb.bolt.Update(func(t *bolt.Tx) error {
-		bucket := t.Bucket([]byte(dataBucket))
-		err := bucket.Put([]byte(checkpoint), data)
-		return err
-	})
-}
-
-func (bdb *BoltDB) GetCheckpoint() ([]byte, error) {
-	var data []byte
-	err := bdb.bolt.View(func(t *bolt.Tx) error {
-		bucket := t.Bucket([]byte(dataBucket))
-		data = bucket.Get([]byte(checkpoint))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
 }
 
 func (bdb *BoltDB) GetBlock(hash string) ([]byte, error) {

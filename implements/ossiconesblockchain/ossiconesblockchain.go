@@ -41,16 +41,16 @@ func New(config config.Config, database database.Database) blockchain.Blockchain
 }
 
 func (o *OssiconesBlockchain) init() error {
-	checkpoint, err := db.GetCheckpoint()
+	blockchainCheckpoint, err := db.GetBlockchain()
 	if err != nil {
-		return fmt.Errorf("failed to get checkpoint : %s", err)
+		return fmt.Errorf("failed to get blockchainCheckpoint : %s", err)
 	}
-	if checkpoint == nil {
+	if blockchainCheckpoint == nil {
 		genesisData := o.config.GetString(genesisBlockDataConfigPath, defaultGenesisBlockData)
 		err = o.AddBlock(genesisData)
 	} else {
 		log.Printf("Restoring...")
-		err = o.restore(checkpoint)
+		err = o.restore(blockchainCheckpoint)
 	}
 	return err
 }
@@ -91,7 +91,10 @@ func (o *OssiconesBlockchain) persist() error {
 	if err != nil {
 		return err
 	}
-	db.SaveBlockchain(data)
+	err = db.SaveBlockchain(data)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

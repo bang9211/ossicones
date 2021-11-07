@@ -24,15 +24,25 @@ var saveblocktests = []struct {
 	{"Saving 4 block", "Test Data4", "Test Data4"},
 }
 
+var saveblockchaintests = []struct {
+	title string
+	input string
+}{
+	{"Saving blockchain with 1 block", "Test Data1"},
+	{"Saving blockchain with 2 block", "Test Data2"},
+	{"Saving blockchain with 3 block", "Test Data3"},
+	{"Saving blockchain with 4 block", "Test Data4"},
+}
+
 func TestImplementBolt(t *testing.T) {
 	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
 		"It must implements of interface database.Database")
 }
 
 func TestSaveBlock(t *testing.T) {
-	cfg, db, err := initTest()
+	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
-	defer closeTest(cfg, db)
+	defer closeTest(cfg, db, bc)
 
 	prevHash := ""
 	height := 1
@@ -67,15 +77,50 @@ func TestSaveBlock(t *testing.T) {
 			height++
 		})
 	}
-
 }
 
 func TestSaveBlockchain(t *testing.T) {
-	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
-		"It must implements of interface database.Database")
+	cfg, db, bc, err := initTest()
+	NoError(t, err, "Failed to initTest()")
+	defer closeTest(cfg, db, bc)
+
+	data, err := utils.ToBytes(bc)
+	NoError(t, err)
+
+	err = db.SaveBlockchain(data)
+	NoError(t, err)
+
+	data, err = db.GetBlockchain()
+	NoError(t, err)
+
+	newBC := &ossiconesblockchain.OssiconesBlockchain{}
+	err = utils.FromBytes(newBC, data)
+	NoError(t, err)
+
+	Equal(t, bc.GetNewestHash(), newBC.NewestHash)
+	Equal(t, bc.GetHeight(), newBC.Height)
+
+	for _, test := range saveblockchaintests {
+		t.Run(test.title, func(t *testing.T) {
+			bc.AddBlock(test.input)
+
+			data, err = utils.ToBytes(bc)
+			NoError(t, err)
+
+			err = db.SaveBlockchain(data)
+			NoError(t, err)
+
+			newBC = &ossiconesblockchain.OssiconesBlockchain{}
+			err = utils.FromBytes(newBC, data)
+			NoError(t, err)
+
+			Equal(t, bc.GetNewestHash(), newBC.NewestHash)
+			Equal(t, bc.GetHeight(), newBC.Height)
+		})
+	}
 }
 
-func TestGetCheckpoint(t *testing.T) {
+func TestGetBlockchain(t *testing.T) {
 	Implements(t, (*database.Database)(nil), new(bolt.BoltDB),
 		"It must implements of interface database.Database")
 }

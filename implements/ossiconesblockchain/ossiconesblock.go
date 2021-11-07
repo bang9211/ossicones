@@ -29,7 +29,10 @@ func (b *OssiconesBlock) persist() error {
 	if err != nil {
 		return err
 	}
-	db.SaveBlock(b.Hash, block)
+	err = db.SaveBlock(b.Hash, block)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
