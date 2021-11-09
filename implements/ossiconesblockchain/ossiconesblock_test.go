@@ -3,7 +3,6 @@ package ossiconesblockchain
 import (
 	"testing"
 
-	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 
 	. "github.com/stretchr/testify/assert"
@@ -43,7 +42,7 @@ var getprevhashtests = []struct {
 }
 
 func TestImplementsBlock(t *testing.T) {
-	Implements(t, (*blockchain.Block)(nil), new(ossiconesblockchain.OssiconesBlock),
+	Implements(t, (*blockchain.Block)(nil), new(OssiconesBlock),
 		"It must implements of interface blockchain.Block")
 }
 
@@ -58,10 +57,10 @@ func TestCalculateHash(t *testing.T) {
 	NoError(t, err)
 
 	block := blocks[len(blocks)-1]
-	IsType(t, (*ossiconesblockchain.OssiconesBlock)(nil), block,
-		"It should be equal of type ossiconesblockchain.OssiconesBlock")
+	IsType(t, (*OssiconesBlock)(nil), block,
+		"It should be equal of type OssiconesBlock")
 
-	ossiconesBlock, ok := block.(*ossiconesblockchain.OssiconesBlock)
+	ossiconesBlock, ok := block.(*OssiconesBlock)
 	True(t, ok)
 
 	Equal(t, ossiconesBlock.Hash,

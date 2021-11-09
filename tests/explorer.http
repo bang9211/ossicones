@@ -1,0 +1,8 @@
+### go home page
+http://localhost:5000/
+
+### go add page
+http://localhost:5000/add
+
+### add block with empty data
+POST http://localhost:5000/add

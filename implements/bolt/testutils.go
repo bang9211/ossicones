@@ -17,7 +17,7 @@ const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
-	err := os.Remove("ossicones.db")
+	os.Remove("ossicones.db")
 
 	db, err := modules.InjectBolt(cfg)
 	if err != nil {
@@ -41,5 +41,8 @@ func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain
 	if err != nil {
 		return err
 	}
+
+	os.Remove("ossicones.db")
+
 	return cfg.Close()
 }

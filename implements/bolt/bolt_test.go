@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bang9211/ossicones/implements/bolt"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/utils"
@@ -40,6 +39,7 @@ func TestImplementBolt(t *testing.T) {
 }
 
 func TestSaveAndGetBlock(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
@@ -80,6 +80,7 @@ func TestSaveAndGetBlock(t *testing.T) {
 }
 
 func TestSaveAndGetBlockchain(t *testing.T) {
+	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
@@ -17,14 +16,14 @@ const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
-	err := os.Remove("ossicones.db")
+	os.Remove("ossicones.db")
 
 	db, err := modules.InjectBolt(cfg)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	bc := ossiconesblockchain.New(cfg, db)
+	bc := New(cfg, db)
 	if bc == nil {
 		return nil, nil, nil, fmt.Errorf("failed to New()")
 	}
@@ -41,5 +40,8 @@ func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain
 	if err != nil {
 		return err
 	}
+
+	os.Remove("ossicones.db")
+
 	return cfg.Close()
 }

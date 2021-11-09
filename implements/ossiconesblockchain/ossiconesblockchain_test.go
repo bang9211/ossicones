@@ -3,7 +3,6 @@ package ossiconesblockchain
 import (
 	"testing"
 
-	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 
 	. "github.com/stretchr/testify/assert"
@@ -65,7 +64,7 @@ var getheighttests = []struct {
 }
 
 func TestImplementsBlockchain(t *testing.T) {
-	Implements(t, (*blockchain.Blockchain)(nil), new(ossiconesblockchain.OssiconesBlockchain),
+	Implements(t, (*blockchain.Blockchain)(nil), new(OssiconesBlockchain),
 		"It must implements of interface blockchain.Blockchain")
 }
 

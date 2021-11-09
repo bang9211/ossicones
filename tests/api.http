@@ -1,16 +1,15 @@
+### get api list
 http://localhost:6000/
 
-###
-
+### get blocks
 http://localhost:6000/blocks
 
-###
 
+### add block
 POST http://localhost:6000/blocks
-
 {
     "message": "Data for my block"
 }
 
-###
-http://localhost:6000/blocks/a035e992e234a02ce3598b221aad77374de7970f55a89cd4b94b2849861e7172
+### get block
+http://localhost:6000/blocks/0c726b371601262a085b403c2d1fa6676cd4c9d3c99b97cd5e5bb7ae1980fb53

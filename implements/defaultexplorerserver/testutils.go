@@ -11,6 +11,8 @@ import (
 	wirejacket "github.com/bang9211/wire-jacket"
 )
 
+const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
+
 func initTest() (config.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
 	cfg := wirejacket.GetConfig()
 
