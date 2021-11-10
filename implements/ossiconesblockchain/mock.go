@@ -7,23 +7,35 @@ import (
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
-	"github.com/bang9211/ossicones/modules"
 	wirejacket "github.com/bang9211/wire-jacket"
+	"github.com/stretchr/testify/mock"
 )
 
-const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
+type dbMock struct {
+	mock.Mock
+	blocks map[string][]byte
+}
+
+func (d *dbMock) SaveBlock(hash string, data []byte) error {
+	d.blocks[hash] = data
+	return nil
+}
+
+func (d *dbMock) SaveBlockchain(data []byte) error { return nil }
+func (d *dbMock) GetBlockchain() ([]byte, error)   { return nil, nil }
+
+func (d *dbMock) GetBlock(hash string) ([]byte, error) {
+	return d.blocks[hash], nil
+}
+
+func (d *dbMock) Close() error { return nil }
 
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
-	os.Remove("ossicones.db")
+	os.Remove("test.db")
 
-	db, err := modules.InjectBolt(cfg)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	bc := New(cfg, db)
+	bc := New(cfg, &dbMock{blocks: map[string][]byte{}})
 	if bc == nil {
 		return nil, nil, nil, fmt.Errorf("failed to New()")
 	}

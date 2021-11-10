@@ -5,7 +5,7 @@ import (
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 
-	. "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 var calculatehashtests = []struct {
@@ -42,52 +42,52 @@ var getprevhashtests = []struct {
 }
 
 func TestImplementsBlock(t *testing.T) {
-	Implements(t, (*blockchain.Block)(nil), new(OssiconesBlock),
+	assert.Implements(t, (*blockchain.Block)(nil), new(OssiconesBlock),
 		"It must implements of interface blockchain.Block")
 }
 
 func TestCalculateHash(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	Equal(t, 1, len(blocks))
-	NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
+	assert.NoError(t, err)
 
 	block := blocks[len(blocks)-1]
-	IsType(t, (*OssiconesBlock)(nil), block,
+	assert.IsType(t, (*OssiconesBlock)(nil), block,
 		"It should be equal of type OssiconesBlock")
 
 	ossiconesBlock, ok := block.(*OssiconesBlock)
-	True(t, ok)
+	assert.True(t, ok)
 
-	Equal(t, ossiconesBlock.Hash,
+	assert.Equal(t, ossiconesBlock.Hash,
 		"46a823ac625c5d086378bd28d032ffd421738bdb1f13f8a403486bc7ea645082")
 
 	for _, test := range calculatehashtests {
 		t.Run(test.title, func(t *testing.T) {
-			newBlock := ossiconesblockchain.OssiconesBlock{
+			newBlock := OssiconesBlock{
 				Data:     test.input,
 				PrevHash: ossiconesBlock.Hash,
 				Height:   len(blocks) + 1,
 			}
 			newBlock.CalculateHash()
-			Equal(t, test.expected, newBlock.Hash)
+			assert.Equal(t, test.expected, newBlock.Hash)
 
 			bc.AddBlock(test.input)
 			blocks, err = bc.AllBlocks()
-			NoError(t, err)
-			Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
+			assert.NoError(t, err)
+			assert.Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 				"It must implements of interface blockchain.Block")
 			block, ok := blocks[len(blocks)-1].(blockchain.Block)
-			True(t, ok)
+			assert.True(t, ok)
 
-			IsType(t, (*ossiconesblockchain.OssiconesBlock)(nil), block,
+			assert.IsType(t, (*OssiconesBlock)(nil), block,
 				"It should be equal of type ossiconesblockchain.OssiconesBlock")
-			ossiconesBlock, ok = block.(*ossiconesblockchain.OssiconesBlock)
-			True(t, ok)
+			ossiconesBlock, ok = block.(*OssiconesBlock)
+			assert.True(t, ok)
 		})
 	}
 }
@@ -95,26 +95,26 @@ func TestCalculateHash(t *testing.T) {
 func TestGetData(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
 
-	Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
+	assert.Implements(t, (*blockchain.Block)(nil), blocks[len(blocks)-1],
 		"It must implements of interface blockchain.Block")
 
-	Equal(t, blocks[0].GetData(), genesisBlockData)
+	assert.Equal(t, blocks[0].GetData(), genesisBlockData)
 
 	for _, test := range getdatatests {
 		t.Run(test.title, func(t *testing.T) {
 			err := bc.AddBlock(test.input)
-			NoError(t, err)
+			assert.NoError(t, err)
 			hash := bc.GetNewestHash()
 			block, err := bc.GetBlock(hash)
-			NoError(t, err)
-			Equal(t, test.expected, block.GetData())
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, block.GetData())
 		})
 	}
 }
@@ -122,22 +122,22 @@ func TestGetData(t *testing.T) {
 func TestGetPrevHash(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
 
-	Equal(t, blocks[0].GetData(), genesisBlockData)
+	assert.Equal(t, blocks[0].GetData(), genesisBlockData)
 	for _, test := range getprevhashtests {
 		t.Run(test.title, func(t *testing.T) {
 			err := bc.AddBlock(test.input)
-			NoError(t, err)
+			assert.NoError(t, err)
 			hash := bc.GetNewestHash()
 			block, err := bc.GetBlock(hash)
-			NoError(t, err)
-			Equal(t, test.expected, block.GetPrevHash())
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, block.GetPrevHash())
 		})
 	}
 }

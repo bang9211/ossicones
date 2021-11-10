@@ -5,8 +5,10 @@ import (
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 
-	. "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
+
+const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 
 var addblocktests = []struct {
 	title    string
@@ -64,28 +66,28 @@ var getheighttests = []struct {
 }
 
 func TestImplementsBlockchain(t *testing.T) {
-	Implements(t, (*blockchain.Blockchain)(nil), new(OssiconesBlockchain),
+	assert.Implements(t, (*blockchain.Blockchain)(nil), new(OssiconesBlockchain),
 		"It must implements of interface blockchain.Blockchain")
 }
 
 func TestAddBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
 
-	Equal(t, genesisBlockData, blocks[0].GetData())
+	assert.Equal(t, genesisBlockData, blocks[0].GetData())
 
 	for _, test := range addblocktests {
 		t.Run(test.title, func(t *testing.T) {
 			bc.AddBlock(test.input)
 			block, err := bc.GetBlock(bc.GetNewestHash())
-			NoError(t, err)
-			Equal(t, test.input, block.GetData())
+			assert.NoError(t, err)
+			assert.Equal(t, test.input, block.GetData())
 		})
 	}
 }
@@ -93,23 +95,23 @@ func TestAddBlock(t *testing.T) {
 func TestAllBlocks(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
 
-	Equal(t, genesisBlockData, blocks[0].GetData())
+	assert.Equal(t, genesisBlockData, blocks[0].GetData())
 
 	for _, test := range allblockstests {
 		t.Run(test.title, func(t *testing.T) {
 			bc.AddBlock(test.input)
 
 			blocks, err = bc.AllBlocks()
-			NoError(t, err)
-			Equal(t, test.expected, len(blocks))
-			Equal(t, test.input, blocks[0].GetData())
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, len(blocks))
+			assert.Equal(t, test.input, blocks[0].GetData())
 		})
 	}
 }
@@ -117,68 +119,68 @@ func TestAllBlocks(t *testing.T) {
 func TestGetBlock(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
-	Equal(t, genesisBlockData, blocks[0].GetData())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
+	assert.Equal(t, genesisBlockData, blocks[0].GetData())
 
 	genesisBlock, err := bc.GetBlock(bc.GetNewestHash())
-	NoError(t, err, "Failed to get a generation block")
-	Equal(t, genesisBlockData, genesisBlock.GetData())
+	assert.NoError(t, err, "Failed to get a generation block")
+	assert.Equal(t, genesisBlockData, genesisBlock.GetData())
 
 	blockCount := bc.GetHeight()
 	for _, test := range getblocktests {
 		t.Run(test.title, func(t *testing.T) {
 			err := bc.AddBlock(test.input_data)
-			NoError(t, err)
+			assert.NoError(t, err)
 			block, err := bc.GetBlock(bc.GetNewestHash())
-			NoError(t, err, "Failed to get a last block")
-			Equal(t, test.input_data, block.GetData())
+			assert.NoError(t, err, "Failed to get a last block")
+			assert.Equal(t, test.input_data, block.GetData())
 			blockCount++
 		})
 	}
 
 	blocks, err = bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, len(blocks), blockCount)
+	assert.NoError(t, err)
+	assert.Equal(t, len(blocks), blockCount)
 
 	hash := bc.GetNewestHash()
 	for _, test := range getblocktests {
 		t.Run(test.title, func(t *testing.T) {
 			block, err := bc.GetBlock(hash)
-			NoError(t, err)
-			Equal(t, test.expected, block.GetData())
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, block.GetData())
 			hash = block.GetPrevHash()
 		})
 	}
 	blocks, err = bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, len(blocks), blockCount)
+	assert.NoError(t, err)
+	assert.Equal(t, len(blocks), blockCount)
 }
 
 func TestGetNewestHash(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
-	Equal(t, genesisBlockData, blocks[0].GetData())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
+	assert.Equal(t, genesisBlockData, blocks[0].GetData())
 
 	genesisBlock, err := bc.GetBlock(bc.GetNewestHash())
-	NoError(t, err, "Failed to get a generation block")
-	Equal(t, genesisBlockData, genesisBlock.GetData())
+	assert.NoError(t, err, "Failed to get a generation block")
+	assert.Equal(t, genesisBlockData, genesisBlock.GetData())
 
 	for _, test := range getnewesthashtests {
 		t.Run(test.title, func(t *testing.T) {
 			err := bc.AddBlock(test.input_data)
-			NoError(t, err)
-			Equal(t, test.expected, bc.GetNewestHash())
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, bc.GetNewestHash())
 		})
 	}
 }
@@ -186,27 +188,27 @@ func TestGetNewestHash(t *testing.T) {
 func TestGetHeight(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
-	NoError(t, err, "Failed to initTest()")
+	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
 
 	blocks, err := bc.AllBlocks()
-	NoError(t, err)
-	Equal(t, 1, len(blocks))
-	Equal(t, genesisBlockData, blocks[0].GetData())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(blocks))
+	assert.Equal(t, genesisBlockData, blocks[0].GetData())
 
 	genesisBlock, err := bc.GetBlock(bc.GetNewestHash())
-	NoError(t, err, "Failed to get a generation block")
-	Equal(t, genesisBlockData, genesisBlock.GetData())
+	assert.NoError(t, err, "Failed to get a generation block")
+	assert.Equal(t, genesisBlockData, genesisBlock.GetData())
 
 	height := bc.GetHeight()
-	Equal(t, height, 1)
+	assert.Equal(t, height, 1)
 	for _, test := range getheighttests {
 		t.Run(test.title, func(t *testing.T) {
 			err := bc.AddBlock(test.input_data)
-			NoError(t, err)
+			assert.NoError(t, err)
 			_, err = bc.GetBlock(bc.GetNewestHash())
-			NoError(t, err, "Failed to get a last block")
-			Equal(t, test.expected, bc.GetHeight())
+			assert.NoError(t, err, "Failed to get a last block")
+			assert.Equal(t, test.expected, bc.GetHeight())
 		})
 	}
 }
