@@ -1,9 +1,13 @@
 package ossiconesblockchain
 
 import (
+	"os"
 	"testing"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
+	"github.com/bang9211/ossicones/interfaces/database"
+	wirejacket "github.com/bang9211/wire-jacket"
 
 	"github.com/stretchr/testify/assert"
 )

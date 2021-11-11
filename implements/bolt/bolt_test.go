@@ -3,13 +3,20 @@ package bolt
 import (
 	"crypto/sha256"
 	"fmt"
+	"os"
 	"testing"
 
+	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
+	"github.com/bang9211/ossicones/mocks"
 	"github.com/bang9211/ossicones/utils"
+	wirejacket "github.com/bang9211/wire-jacket"
 
 	"github.com/stretchr/testify/assert"
 )
+
+const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
 
 var saveblocktests = []struct {
 	title    string
@@ -47,7 +54,7 @@ func TestSaveAndGetBlock(t *testing.T) {
 	height := 1
 	for _, test := range saveblocktests {
 		t.Run(test.title, func(t *testing.T) {
-			block := &blockMock{
+			block := &mocks.BlockMock{
 				Data:     test.input,
 				PrevHash: prevHash,
 				Height:   height,
@@ -64,7 +71,7 @@ func TestSaveAndGetBlock(t *testing.T) {
 			byteBlock, err = db.GetBlock(hash)
 			assert.NoError(t, err)
 
-			newBlock := &blockMock{}
+			newBlock := &mocks.BlockMock{}
 			err = utils.FromBytes(newBlock, byteBlock)
 			assert.NoError(t, err)
 
@@ -93,7 +100,7 @@ func TestSaveAndGetBlockchain(t *testing.T) {
 	data, err = db.GetBlockchain()
 	assert.NoError(t, err)
 
-	newBC := &blockchainMock{}
+	newBC := &mocks.BlockchainMock{}
 	err = utils.FromBytes(newBC, data)
 	assert.NoError(t, err)
 
@@ -110,7 +117,7 @@ func TestSaveAndGetBlockchain(t *testing.T) {
 			err = db.SaveBlockchain(data)
 			assert.NoError(t, err)
 
-			newBC = &blockchainMock{}
+			newBC = &mocks.BlockchainMock{}
 			err = utils.FromBytes(newBC, data)
 			assert.NoError(t, err)
 
@@ -118,4 +125,31 @@ func TestSaveAndGetBlockchain(t *testing.T) {
 			assert.Equal(t, bc.GetHeight(), newBC.Height)
 		})
 	}
+}
+
+func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
+	cfg := wirejacket.GetConfig()
+
+	os.Remove("ossicones.db")
+
+	db := New(cfg)
+	bc := &mocks.BlockchainMock{}
+	bc.Init()
+
+	return cfg, db, bc, nil
+}
+
+func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain) error {
+	err := bc.Close()
+	if err != nil {
+		return err
+	}
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	os.Remove("ossicones.db")
+
+	return cfg.Close()
 }

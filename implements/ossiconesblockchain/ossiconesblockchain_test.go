@@ -1,9 +1,15 @@
 package ossiconesblockchain
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
+	"github.com/bang9211/ossicones/interfaces/config"
+	"github.com/bang9211/ossicones/interfaces/database"
+	"github.com/bang9211/ossicones/mocks"
+	wirejacket "github.com/bang9211/wire-jacket"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -211,4 +217,32 @@ func TestGetHeight(t *testing.T) {
 			assert.Equal(t, test.expected, bc.GetHeight())
 		})
 	}
+}
+
+func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
+	cfg := wirejacket.GetConfig()
+
+	os.Remove("test.db")
+
+	bc := New(cfg, &mocks.DBMock{Blocks: map[string][]byte{}})
+	if bc == nil {
+		return nil, nil, nil, fmt.Errorf("failed to New()")
+	}
+
+	return cfg, db, bc, nil
+}
+
+func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain) error {
+	err := bc.Close()
+	if err != nil {
+		return err
+	}
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	os.Remove("ossicones.db")
+
+	return cfg.Close()
 }
