@@ -242,7 +242,7 @@ func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain
 		return err
 	}
 
-	os.Remove("ossicones.db")
+	os.Remove("test.db")
 
 	return cfg.Close()
 }

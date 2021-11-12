@@ -16,8 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const genesisBlockData = "TEST_GENESIS_BLOCK_DATA"
-
 var saveblocktests = []struct {
 	title    string
 	input    string
@@ -45,7 +43,6 @@ func TestImplementBolt(t *testing.T) {
 }
 
 func TestSaveAndGetBlock(t *testing.T) {
-	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
@@ -86,7 +83,6 @@ func TestSaveAndGetBlock(t *testing.T) {
 }
 
 func TestSaveAndGetBlockchain(t *testing.T) {
-	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	assert.NoError(t, err, "Failed to initTest()")
 	defer closeTest(cfg, db, bc)
@@ -130,7 +126,7 @@ func TestSaveAndGetBlockchain(t *testing.T) {
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
-	os.Remove("ossicones.db")
+	os.Remove("test.db")
 
 	db := New(cfg)
 	bc := &mocks.BlockchainMock{}
@@ -149,7 +145,7 @@ func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain
 		return err
 	}
 
-	os.Remove("ossicones.db")
+	os.Remove("test.db")
 
 	return cfg.Close()
 }
