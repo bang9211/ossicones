@@ -43,19 +43,19 @@ type DefaultExplorerServer struct {
 func New(
 	config config.Config,
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
-	dhs := &DefaultExplorerServer{
+	des := &DefaultExplorerServer{
 		config:     config,
 		handler:    http.NewServeMux(),
 		blockchain: blocchain,
 	}
 
-	err := dhs.init()
+	err := des.init()
 	if err != nil {
 		log.Printf("failed to init DefaultExplorerServer : %s", err)
 		return nil
 	}
 
-	return dhs
+	return des
 }
 
 func (d *DefaultExplorerServer) init() error {
