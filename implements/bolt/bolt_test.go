@@ -126,7 +126,7 @@ func TestSaveAndGetBlockchain(t *testing.T) {
 func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
-	os.Remove("test.db")
+	os.Remove("ossicones.db")
 
 	db := New(cfg)
 	bc := &mocks.BlockchainMock{}
@@ -145,7 +145,7 @@ func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain
 		return err
 	}
 
-	os.Remove("test.db")
+	os.Remove("ossicones.db")
 
 	return cfg.Close()
 }

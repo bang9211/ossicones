@@ -81,9 +81,7 @@ func (d *DefaultExplorerServer) home(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to get all blocks : %s", err)
 	} else {
-		for _, block := range tempBlocks {
-			blocks = append(blocks, block.(blockchain.Block))
-		}
+		blocks = append(blocks, tempBlocks...)
 	}
 	data := homeData{"Home", blocks}
 

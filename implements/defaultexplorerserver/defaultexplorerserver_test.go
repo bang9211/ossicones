@@ -5,16 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/bang9211/ossicones/implements/bolt"
-	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
+	"github.com/bang9211/ossicones/mocks"
 	"github.com/bang9211/ossicones/utils"
 	wirejacket "github.com/bang9211/wire-jacket"
 
@@ -99,10 +97,9 @@ func TestClose(t *testing.T) {
 func initTest() (config.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
 	cfg := wirejacket.GetConfig()
 
-	os.Remove("test.db")
+	bc := &mocks.BlockchainMock{}
+	bc.Init()
 
-	db := bolt.New(cfg)
-	bc := ossiconesblockchain.New(cfg, db)
 	es := New(cfg, bc)
 
 	return cfg, bc, es, nil
@@ -117,8 +114,6 @@ func closeTest(cfg config.Config, bc blockchain.Blockchain, es explorerserver.Ex
 	if err != nil {
 		return err
 	}
-
-	os.Remove("test.db")
 
 	return cfg.Close()
 }
