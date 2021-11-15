@@ -1,7 +1,6 @@
 package defaultexplorerserver
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -86,7 +85,7 @@ func TestPostAdd(t *testing.T) {
 	des.home(responseRecorder, request)
 	assert.Equal(t, responseRecorder.Code, 200)
 
-	fmt.Printf("%s\n", responseRecorder.Body.String())
+	// assert.Equal(t, responseRecorder.Body.String(), "test")
 }
 
 func TestClose(t *testing.T) {

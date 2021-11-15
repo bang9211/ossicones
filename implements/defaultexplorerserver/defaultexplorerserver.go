@@ -18,7 +18,7 @@ const (
 	templatePathConfigPath = "ossicones_explorer_server_template_path"
 	defaultHost            = "0.0.0.0"
 	defaultPort            = 3000
-	defaultTemplatePath    = "templates"
+	defaultTemplatePath    = "${OSSICONES_SRC_HOME}/templates"
 
 	templatePagePath    = "/pages/*.gohtml"
 	templatePartialPath = "/partials/*.gohtml"
@@ -63,6 +63,7 @@ func (d *DefaultExplorerServer) init() error {
 	port := d.config.GetInt(portConfigPath, defaultPort)
 	d.address = host + ":" + strconv.Itoa(port)
 	d.templatePath = d.config.GetString(templatePathConfigPath, defaultTemplatePath)
+	// utils.
 
 	templates = template.Must(template.ParseGlob(d.templatePath + templatePagePath))
 	templates = template.Must(templates.ParseGlob(d.templatePath + templatePartialPath))
