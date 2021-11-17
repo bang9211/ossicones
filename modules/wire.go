@@ -1,5 +1,5 @@
-//go:build wireinject
-// +build wireinject
+//go:build !wireinject
+// +build !wireinject
 
 package modules
 
@@ -9,10 +9,10 @@ import (
 	"github.com/bang9211/ossicones/implements/defaultrestapiserver"
 	"github.com/bang9211/ossicones/implements/ossiconesblockchain"
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/google/wire"
 )
 
@@ -64,20 +64,20 @@ var EagerInjectors = map[string]interface{}{}
 //
 
 // InjectBolt injects dependencies and inits of Database.
-func InjectBolt(config config.Config) (database.Database, error) {
+func InjectBolt(config viperjacket.Config) (database.Database, error) {
 	wire.Build(bolt.New)
 	return nil, nil
 }
 
 // InjectOssiconesBlockchain injects dependencies and inits of Blockchain.
-func InjectOssiconesBlockchain(config config.Config, db database.Database) (blockchain.Blockchain, error) {
+func InjectOssiconesBlockchain(config viperjacket.Config, db database.Database) (blockchain.Blockchain, error) {
 	wire.Build(ossiconesblockchain.New)
 	return nil, nil
 }
 
 // InjectDefaultExplorerServer injects dependencies and inits of ExplorerServer.
 func InjectDefaultExplorerServer(
-	config config.Config,
+	config viperjacket.Config,
 	blockchain blockchain.Blockchain,
 ) (explorerserver.ExplorerServer, error) {
 	wire.Build(defaultexplorerserver.New)
@@ -86,7 +86,7 @@ func InjectDefaultExplorerServer(
 
 // InjectDefaultRESTAPIServer injects dependencies and inits of APiServer.
 func InjectDefaultRESTAPIServer(
-	config config.Config,
+	config viperjacket.Config,
 	blockchain blockchain.Blockchain,
 ) (restapiserver.RESTAPIServer, error) {
 	wire.Build(defaultrestapiserver.New)

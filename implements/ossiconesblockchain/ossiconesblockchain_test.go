@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/mocks"
+	viperjacket "github.com/bang9211/viper-jacket"
 	wirejacket "github.com/bang9211/wire-jacket"
 
 	"github.com/stretchr/testify/assert"
@@ -219,7 +219,7 @@ func TestGetHeight(t *testing.T) {
 	}
 }
 
-func initTest() (config.Config, database.Database, blockchain.Blockchain, error) {
+func initTest() (viperjacket.Config, database.Database, blockchain.Blockchain, error) {
 	cfg := wirejacket.GetConfig()
 
 	os.Remove("test.db")
@@ -232,7 +232,7 @@ func initTest() (config.Config, database.Database, blockchain.Blockchain, error)
 	return cfg, db, bc, nil
 }
 
-func closeTest(cfg config.Config, db database.Database, bc blockchain.Blockchain) error {
+func closeTest(cfg viperjacket.Config, db database.Database, bc blockchain.Blockchain) error {
 	err := bc.Close()
 	if err != nil {
 		return err

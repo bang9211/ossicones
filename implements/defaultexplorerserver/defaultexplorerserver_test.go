@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
 	"github.com/bang9211/ossicones/mocks"
 	"github.com/bang9211/ossicones/utils"
+	viperjacket "github.com/bang9211/viper-jacket"
 	wirejacket "github.com/bang9211/wire-jacket"
 
 	"github.com/stretchr/testify/assert"
@@ -93,7 +93,7 @@ func TestClose(t *testing.T) {
 		"It must assert.Implements of interface explorerserver.ExplorerServer")
 }
 
-func initTest() (config.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
+func initTest() (viperjacket.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
 	cfg := wirejacket.GetConfig()
 
 	bc := &mocks.BlockchainMock{}
@@ -104,7 +104,7 @@ func initTest() (config.Config, blockchain.Blockchain, explorerserver.ExplorerSe
 	return cfg, bc, es, nil
 }
 
-func closeTest(cfg config.Config, bc blockchain.Blockchain, es explorerserver.ExplorerServer) error {
+func closeTest(cfg viperjacket.Config, bc blockchain.Blockchain, es explorerserver.ExplorerServer) error {
 	err := es.Close()
 	if err != nil {
 		return err

@@ -8,8 +8,8 @@ import (
 	"text/template"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/explorerserver"
+	viperjacket "github.com/bang9211/viper-jacket"
 )
 
 const (
@@ -32,7 +32,7 @@ type homeData struct {
 }
 
 type DefaultExplorerServer struct {
-	config       config.Config
+	config       viperjacket.Config
 	handler      *http.ServeMux
 	blockchain   blockchain.Blockchain
 	templatePath string
@@ -41,7 +41,7 @@ type DefaultExplorerServer struct {
 
 // New creates, initializes and returns DefaultExplorerServer.
 func New(
-	config config.Config,
+	config viperjacket.Config,
 	blocchain blockchain.Blockchain) explorerserver.ExplorerServer {
 	des := &DefaultExplorerServer{
 		config:     config,

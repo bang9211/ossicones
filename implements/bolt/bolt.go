@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/utils"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/boltdb/bolt"
 )
 
@@ -19,12 +19,12 @@ const (
 )
 
 type BoltDB struct {
-	config config.Config
+	config viperjacket.Config
 	bolt   *bolt.DB
 }
 
 // New creates, initializes and returns BoltDB.
-func New(config config.Config) database.Database {
+func New(config viperjacket.Config) database.Database {
 	bt := &BoltDB{
 		config: config,
 	}

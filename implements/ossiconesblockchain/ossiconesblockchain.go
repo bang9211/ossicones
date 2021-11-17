@@ -7,9 +7,9 @@ import (
 	"log"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/database"
 	"github.com/bang9211/ossicones/utils"
+	viperjacket "github.com/bang9211/viper-jacket"
 )
 
 const (
@@ -20,13 +20,13 @@ const (
 var db database.Database
 
 type OssiconesBlockchain struct {
-	config     config.Config
+	config     viperjacket.Config
 	NewestHash string `json:"newstHash"`
 	Height     int    `json:"height"`
 }
 
 // New creates, initializes and returns OssiconesBlockchain.
-func New(config config.Config, database database.Database) blockchain.Blockchain {
+func New(config viperjacket.Config, database database.Database) blockchain.Blockchain {
 	db = database
 	obc := &OssiconesBlockchain{config: config}
 

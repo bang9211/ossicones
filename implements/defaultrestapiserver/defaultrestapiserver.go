@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
-	"github.com/bang9211/ossicones/interfaces/config"
 	"github.com/bang9211/ossicones/interfaces/restapiserver"
 	"github.com/bang9211/ossicones/utils"
+	viperjacket "github.com/bang9211/viper-jacket"
 	"github.com/gorilla/mux"
 )
 
@@ -55,7 +55,7 @@ type ErrorResponse struct {
 }
 
 type DefaultRESTAPIServer struct {
-	config     config.Config
+	config     viperjacket.Config
 	handler    *mux.Router
 	blockchain blockchain.Blockchain
 	homePath   string
@@ -64,7 +64,7 @@ type DefaultRESTAPIServer struct {
 
 // New creates, initializes and returns DefaultRESTAPIServer.
 func New(
-	config config.Config,
+	config viperjacket.Config,
 	blocchain blockchain.Blockchain) restapiserver.RESTAPIServer {
 	drs := &DefaultRESTAPIServer{
 		config:     config,
