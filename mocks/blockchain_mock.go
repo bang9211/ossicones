@@ -3,6 +3,7 @@ package mocks
 import (
 	"crypto/sha256"
 	"fmt"
+	"os"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +19,9 @@ type BlockchainMock struct {
 
 func (b *BlockchainMock) Init() {
 	b.blocksMap = make(map[string]blockchain.Block)
+
 	b.blocks = make([]blockchain.Block, 0)
+	b.AddBlock(os.Getenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA"))
 }
 
 func (b *BlockchainMock) AddBlock(data string) error {

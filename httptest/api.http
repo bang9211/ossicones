@@ -6,7 +6,8 @@ http://localhost:6000/blocks
 
 
 ### add block
-POST http://localhost:6000/blocks
+POST http://localhost:6000/blocks 
+
 {
     "message": "Data for my block"
 }

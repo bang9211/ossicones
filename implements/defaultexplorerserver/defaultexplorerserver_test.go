@@ -88,11 +88,6 @@ func TestPostAdd(t *testing.T) {
 	// assert.Equal(t, responseRecorder.Body.String(), "test")
 }
 
-func TestClose(t *testing.T) {
-	assert.Implements(t, (*explorerserver.ExplorerServer)(nil), new(DefaultExplorerServer),
-		"It must assert.Implements of interface explorerserver.ExplorerServer")
-}
-
 func initTest() (viperjacket.Config, blockchain.Blockchain, explorerserver.ExplorerServer, error) {
 	cfg := wirejacket.GetConfig()
 
