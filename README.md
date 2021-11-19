@@ -12,6 +12,9 @@ go build
 
 ./ossicones --config {CONFIG_PATH}
 #
+API docs(https://youngtak-han.gitbook.io/api-docs-ossicones/) - editing
+
+#
 
 Dev Plan=
 
