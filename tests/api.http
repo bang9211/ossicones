@@ -1,0 +1,16 @@
+http://localhost:6001/
+
+###
+
+http://localhost:6001/blocks
+
+###
+
+POST http://localhost:6001/blocks
+
+{
+    "message": "Data for my block"
+}
+
+###
+http://localhost:6001/blocks/a035e992e234a02ce3598b221aad77374de7970f55a89cd4b94b2849861e7172

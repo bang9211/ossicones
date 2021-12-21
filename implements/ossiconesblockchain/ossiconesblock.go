@@ -3,16 +3,19 @@ package ossiconesblockchain
 import (
 	"crypto/sha256"
 	"fmt"
+	"strings"
 
 	"github.com/bang9211/ossicones/utils"
 )
 
 // OssiconesBlock for OssiconesBlockChain.
 type OssiconesBlock struct {
-	Data     string `json:"data"`
-	Hash     string `json:"hash"`
-	PrevHash string `json:"prevhash,omitempty"`
-	Height   int    `json:"height"`
+	Data       string `json:"data"`
+	Hash       string `json:"hash"`
+	PrevHash   string `json:"prevhash,omitempty"`
+	Height     int    `json:"height"`
+	Difficulty int    `json:"difficulty"`
+	Nonce      int    `json:"nonce"`
 }
 
 func (b *OssiconesBlock) CalculateHash() {
@@ -29,11 +32,21 @@ func (b *OssiconesBlock) persist() error {
 	if err != nil {
 		return err
 	}
-	err = db.SaveBlock(b.Hash, block)
-	if err != nil {
-		return err
+	return db.SaveBlock(b.Hash, block)
+}
+
+func (o *OssiconesBlock) mine() {
+	target := strings.Repeat("0", defaultDifficulty)
+	for {
+		byteBlock := []byte(fmt.Sprint(o))
+		hash := fmt.Sprintf("%x", sha256.Sum256(byteBlock))
+		if strings.HasPrefix(hash, target) {
+			o.Hash = hash
+			return
+		} else {
+			o.Nonce++
+		}
 	}
-	return nil
 }
 
 func (b *OssiconesBlock) restore(data []byte) error {

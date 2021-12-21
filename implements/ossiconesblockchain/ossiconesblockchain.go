@@ -1,7 +1,6 @@
 package ossiconesblockchain
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
@@ -13,6 +12,8 @@ import (
 )
 
 const (
+	difficultyConfigPath       = "ossicones_blockchain_difficulty"
+	defaultDifficulty          = 2
 	genesisBlockDataConfigPath = "ossicones_blockchain_genesis_block_data"
 	defaultGenesisBlockData    = "Genesis OssiconesBlock"
 )
@@ -56,6 +57,10 @@ func (o *OssiconesBlockchain) init() error {
 }
 
 func (o *OssiconesBlockchain) AddBlock(data string) error {
+	// When adding a block, the miner verifies all transactions
+	// in the block and receives a reward.
+	// Recent cryptocurrencies use Proof of Stake (PoS),
+	// which is completely different from Proof of Work (PoW) and more complex.
 	newBlock, err := o.createBlock(data, o.NewestHash, o.Height+1)
 	if err != nil {
 		return err
@@ -72,12 +77,13 @@ func (o *OssiconesBlockchain) AddBlock(data string) error {
 
 func (o *OssiconesBlockchain) createBlock(data string, prevHash string, height int) (*OssiconesBlock, error) {
 	newBlock := &OssiconesBlock{
-		Data:     data,
-		PrevHash: prevHash,
-		Height:   height,
+		Data:       data,
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: defaultDifficulty,
+		Nonce:      0,
 	}
-	payload := newBlock.Data + newBlock.PrevHash + fmt.Sprintf("%d", newBlock.Height)
-	newBlock.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(payload)))
+	newBlock.mine()
 	err := newBlock.persist()
 	if err != nil {
 		return nil, err

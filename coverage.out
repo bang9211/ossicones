@@ -1,4 +1,5 @@
 mode: atomic
+<<<<<<< HEAD
 github.com/bang9211/ossicones/implements/ossiconesblockchain/ossiconesblock.go:18.42,21.2 2 0
 github.com/bang9211/ossicones/implements/ossiconesblockchain/ossiconesblock.go:23.43,25.2 1 0
 github.com/bang9211/ossicones/implements/ossiconesblockchain/ossiconesblock.go:27.42,29.16 2 0
@@ -125,3 +126,17 @@ github.com/bang9211/ossicones/implements/defaultexplorerserver/defaultexplorerse
 github.com/bang9211/ossicones/implements/defaultexplorerserver/defaultexplorerserver.go:113.2,113.12 1 0
 github.com/bang9211/ossicones/implements/defaultexplorerserver/defaultexplorerserver.go:109.16,112.3 2 0
 github.com/bang9211/ossicones/implements/defaultexplorerserver/defaultexplorerserver.go:116.47,118.2 1 0
+=======
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:14.94,18.16 3 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:22.2,23.15 2 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:27.2,28.16 2 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:32.2,32.25 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:18.16,20.3 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:23.15,25.3 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:28.16,30.3 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:35.101,37.16 2 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:40.2,41.16 2 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:44.2,44.20 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:37.16,39.3 1 0
+github.com/bang9211/ossicones/tests/defaultexplorerserver/testutils.go:41.16,43.3 1 0
+>>>>>>> Added mining
