@@ -18,10 +18,12 @@ type OssiconesBlock struct {
 	Nonce      int    `json:"nonce"`
 }
 
+/*
 func (b *OssiconesBlock) CalculateHash() {
 	Hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
 	b.Hash = fmt.Sprintf("%x", Hash)
 }
+*/
 
 func (b *OssiconesBlock) GetData() string {
 	return b.Data
@@ -35,7 +37,7 @@ func (b *OssiconesBlock) persist() error {
 	return db.SaveBlock(b.Hash, block)
 }
 
-func (o *OssiconesBlock) mine() {
+func (o *OssiconesBlock) Mine() {
 	target := strings.Repeat("0", defaultDifficulty)
 	for {
 		byteBlock := []byte(fmt.Sprint(o))

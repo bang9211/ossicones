@@ -13,10 +13,10 @@ var calculatehashtests = []struct {
 	input    string
 	expected string
 }{
-	{"Calculating hash of Test Data1", "Test Data1", "ed739e9aeb8d09d33a8687fa6c35d88b5bcf22c5ba134b7862d8347e55016262"},
-	{"Calculating hash of Test Data2", "Test Data2", "f781594d46943ee46a392363426db980f8a87466d9ab53ded834c92069890330"},
-	{"Calculating hash of Test Data3", "Test Data3", "54d7f6fc926e7d51a399a45a82f1af01c9bac63eb135d1815cc309a05831944e"},
-	{"Calculating hash of Test Data4", "Test Data4", "e91e533a9c1e791d73c547a32240a5f7454ad7e3b205070f89861cff2ff67bef"},
+	{"Calculating hash of Test Data1", "Test Data1", "008059a4ca5ace8c990bd225e797bcac6da370efcd95d3b3f858188055c51a33"},
+	{"Calculating hash of Test Data2", "Test Data2", "00421e492d1fba9d65a13a48fd28c7884aabf0563c0795f0e87a59df2e6a50ea"},
+	{"Calculating hash of Test Data3", "Test Data3", "004dec6a66243fc6f97f89b762653b77a3ccde9bde8f1e15aaa840f92ef086a1"},
+	{"Calculating hash of Test Data4", "Test Data4", "00cc036c41548658773c19a0bc0f0abcb08f4e50b4e549b339663b395a986765"},
 }
 
 var getdatatests = []struct {
@@ -35,10 +35,10 @@ var getprevhashtests = []struct {
 	input    string
 	expected string
 }{
-	{"Getting Previous hash of block1", "Test Data1", "46a823ac625c5d086378bd28d032ffd421738bdb1f13f8a403486bc7ea645082"},
-	{"Getting Previous hash of block2", "Test Data2", "a9cbc6f70a1af8ffc003e3a1a9ef87d41f4b3113c66c1b2663625601609012f1"},
-	{"Getting Previous hash of block3", "Test Data3", "7298f26aa20f68ec9c2fb751d6e8168f25300632cf904c9db0fd1acb42b61eec"},
-	{"Getting Previous hash of block4", "Test Data4", "4bf189892f3dd47db879e79e2e604eaefb76831a2b9fb87ccb6ede5e93aad126"},
+	{"Getting Previous hash of block1", "Test Data1", "00a283a808beba990e639df72bdc43dea322513dbd56ec55257a3ed7e500ff8b"},
+	{"Getting Previous hash of block2", "Test Data2", "00ef0a9819b1685d07b18d9a17a9b34061fd024cb2c9c1e7adb1b56f2233fe4c"},
+	{"Getting Previous hash of block3", "Test Data3", "00e679f23b50b25daa268358bd6c7a8a78692cdd1c9affc7e7fb906cb18378aa"},
+	{"Getting Previous hash of block4", "Test Data4", "00bc734cbcb4ee90e0579364f1203868556347fefee030f791f89757774b65b0"},
 }
 
 func TestImplementsBlock(t *testing.T) {
@@ -46,7 +46,7 @@ func TestImplementsBlock(t *testing.T) {
 		"It must implements of interface blockchain.Block")
 }
 
-func TestCalculateHash(t *testing.T) {
+func TestMine(t *testing.T) {
 	t.Setenv("OSSICONES_BLOCKCHAIN_GENESIS_BLOCK_DATA", genesisBlockData)
 	cfg, db, bc, err := initTest()
 	assert.NoError(t, err, "Failed to initTest()")
@@ -64,7 +64,7 @@ func TestCalculateHash(t *testing.T) {
 	assert.True(t, ok)
 
 	assert.Equal(t, ossiconesBlock.Hash,
-		"46a823ac625c5d086378bd28d032ffd421738bdb1f13f8a403486bc7ea645082")
+		"00a283a808beba990e639df72bdc43dea322513dbd56ec55257a3ed7e500ff8b")
 
 	for _, test := range calculatehashtests {
 		t.Run(test.title, func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestCalculateHash(t *testing.T) {
 				PrevHash: ossiconesBlock.Hash,
 				Height:   len(blocks) + 1,
 			}
-			newBlock.CalculateHash()
+			newBlock.Mine()
 			assert.Equal(t, test.expected, newBlock.Hash)
 
 			bc.AddBlock(test.input)

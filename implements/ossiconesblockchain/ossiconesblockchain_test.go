@@ -54,10 +54,10 @@ var getnewesthashtests = []struct {
 	input_data string
 	expected   string
 }{
-	{"Getting Test Data1 block", "Test Data1", "a9cbc6f70a1af8ffc003e3a1a9ef87d41f4b3113c66c1b2663625601609012f1"},
-	{"Getting Test Data2 block", "Test Data2", "7298f26aa20f68ec9c2fb751d6e8168f25300632cf904c9db0fd1acb42b61eec"},
-	{"Getting Test Data3 block", "Test Data3", "4bf189892f3dd47db879e79e2e604eaefb76831a2b9fb87ccb6ede5e93aad126"},
-	{"Getting Test Data4 block", "Test Data4", "fe5bb6f93039110a918aaccbf01fd8ee399acb32925931bab3fb4881d2ebef81"},
+	{"Getting Test Data1 block", "Test Data1", "00ef0a9819b1685d07b18d9a17a9b34061fd024cb2c9c1e7adb1b56f2233fe4c"},
+	{"Getting Test Data2 block", "Test Data2", "00e679f23b50b25daa268358bd6c7a8a78692cdd1c9affc7e7fb906cb18378aa"},
+	{"Getting Test Data3 block", "Test Data3", "00bc734cbcb4ee90e0579364f1203868556347fefee030f791f89757774b65b0"},
+	{"Getting Test Data4 block", "Test Data4", "002a0ab9796dd87b2f057847d936034e47a4bdbf283f4e9f633094e3eb064bbf"},
 }
 
 var getheighttests = []struct {

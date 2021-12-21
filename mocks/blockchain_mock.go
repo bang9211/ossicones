@@ -4,10 +4,13 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/bang9211/ossicones/interfaces/blockchain"
 	"github.com/stretchr/testify/mock"
 )
+
+const defaultDifficulty = 2
 
 type BlockchainMock struct {
 	mock.Mock
@@ -57,15 +60,26 @@ func (b *BlockchainMock) Close() error { return nil }
 
 type BlockMock struct {
 	mock.Mock
-	Data     string `json:"data"`
-	Hash     string `json:"hash"`
-	PrevHash string `json:"prevhash,omitempty"`
-	Height   int    `json:"height"`
+	Data       string `json:"data"`
+	Hash       string `json:"hash"`
+	PrevHash   string `json:"prevhash,omitempty"`
+	Height     int    `json:"height"`
+	Difficulty int    `json:"difficulty"`
+	Nonce      int    `json:"nonce"`
 }
 
-func (b *BlockMock) CalculateHash() {
-	Hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
-	b.Hash = fmt.Sprintf("%x", Hash)
+func (b *BlockMock) Mine() {
+	target := strings.Repeat("0", defaultDifficulty)
+	for {
+		byteBlock := []byte(fmt.Sprint(b))
+		hash := fmt.Sprintf("%x", sha256.Sum256(byteBlock))
+		if strings.HasPrefix(hash, target) {
+			b.Hash = hash
+			return
+		} else {
+			b.Nonce++
+		}
+	}
 }
 
 func (b *BlockMock) GetData() string {

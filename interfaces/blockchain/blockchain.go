@@ -4,7 +4,9 @@ import "errors"
 
 type Block interface {
 	// CalculateHash calculates hash using sha256.
-	CalculateHash()
+	// CalculateHash()
+	// Mine mines the hash.
+	Mine()
 	// GetData gets data of the block.
 	GetData() string
 	// GetPrevHash gets hash data of the previous block.

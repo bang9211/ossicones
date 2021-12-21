@@ -83,7 +83,7 @@ func (o *OssiconesBlockchain) createBlock(data string, prevHash string, height i
 		Difficulty: defaultDifficulty,
 		Nonce:      0,
 	}
-	newBlock.mine()
+	newBlock.Mine()
 	err := newBlock.persist()
 	if err != nil {
 		return nil, err
